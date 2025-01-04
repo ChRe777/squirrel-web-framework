@@ -1,3 +1,7 @@
+// Imports
+//
+import { transpile } from "../lib/transpiler.ts";
+
 // Constants
 //
 const HTML_5_TAGS = new Set([
@@ -24,33 +28,50 @@ export async function importDynamic(filePath: string): Promise<any> {
     // Specify the path for the temporary module
     const tempFilePath = "./tempDynamicModule.ts";
 
-    const dynamicModuleContent = await Deno.readTextFile(filePath);
+    // @ts-ignore
+    let dynamicModuleContent = await Deno.readTextFile(filePath);
 
-    const example = `
-    ---
-    import Layout from "./components/layout.sqirrel";
-    const { title } = Squirrel.props;
-    const count = signal(0);
-    ---
-    <Layout>
-        <h2>${title}</h2>
-        <div>Count: ${count.value}</div>
-    </Layout>
-    `
+    if (filePath.endsWith(".squirrel")) {
+
+        /*
+        ---
+
+        const Squirrel = {}
+        Squirrel["Props"] = { "id":"123", "foo":"bar"}
+
+        import Users from ".Users";
+        const {id, text} = Squirrel.Props;
+        ---
+        <Users id="${id}">
+            ${text}
+        </Users>
+        */
+        dynamicModuleContent = transpile(dynamicModuleContent);
+
+        /*
+        const content = `<div id="123">
+            <slot/>
+        </div>`
+        const User = importDynamic("User.Squirrel");
+        export default "<div>foo</div>"
+        */
+
+        dynamicModuleContent = `export default \`${dynamicModuleContent}\`;`
+    }
+
     // Write the dynamic content to a file
+    // @ts-ignore
     await Deno.writeTextFile(tempFilePath, dynamicModuleContent);
 
     // Dynamically import the newly created module
     const dynamicModule = await import(tempFilePath);
 
+    // @ts-ignore
     await Deno.remove(tempFilePath);
 
     return dynamicModule;
 }
 
 export function transformHtml(mapping: any, html: string): string {
-    console.log("mapping", mapping);
-    console.log("html", html);
-
     return html + "<DIV>HELLOOOOOO</DIV>";
 }

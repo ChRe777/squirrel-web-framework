@@ -1,0 +1,5 @@
+---
+const id = "123"
+const foo = "foo"
+---
+<div id="${id}">${foo}</div>

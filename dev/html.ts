@@ -93,9 +93,6 @@ export function transform(mapping: Record<string, any>, html: string) {
 }
 
 
-
-
-
 const mapping: Record<string, any> = {}
 mapping["foo"] = {
     "onopentag": function (tagname: string, attributes: Record<string, string>) {

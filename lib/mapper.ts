@@ -1,0 +1,78 @@
+// Imports
+// @ts-ignore
+import { Parser } from 'npm:htmlparser2';
+import { transpile } from './transpiler.ts';
+
+// Exports
+//
+export function mapCustomTags(customTags: Record<string, any>, html: string, context: Record<string, any>): string {
+
+    const buffer: string[] = []
+
+    const append = (x: string) => {
+        buffer.push(x);
+    }
+
+    const copyDeep = (original: Record<string, any>) => {
+        return JSON.parse(JSON.stringify(original));
+    }
+
+    async function mapTag(name: string, attributes: any, context: Record<string, any>) {
+        const filePath = customTags[name];
+        // @ts-ignore
+        const squirrel = Deno.readTextFileSync(filePath);
+        const newContext = copyDeep(context)
+        newContext["Props"] = attributes;
+        const html = await transpile(squirrel, newContext);
+        return html;
+    }
+
+    const tagStack: string[] = [];
+
+    const parser = new Parser(
+        {
+            async onopentag(name: string, attributes: any) {
+                if (name in customTags) {
+                    const html = await mapTag(name, attributes, context)// <div id="123"><slot ></slot></div>
+                    let [openTag, closeTag] = html.split('<slot />');
+                    tagStack.push(closeTag);
+                    append(openTag);
+                } else {
+                    append(`<${name} ${mapAttributes(attributes)}>`);
+                }
+            },
+            async ontext(text: string) {
+                append(text);
+            },
+            async onclosetag(name: string) {
+                if (name in customTags) {
+                    const name = tagStack.pop();
+                    if (name) {
+                        append(name);
+                    }
+                } else {
+                    append(`</${name}>`);
+                }
+            }
+        },
+        {
+            decodeEntities: true,
+            recognizeSelfClosing: true,
+            lowerCaseTags: false,
+        }
+    );
+
+    parser.write(html);
+    parser.end();
+
+    return buffer.join("")
+}
+
+// <OpenTagNAME attributes>TEXT<EndTagName>
+
+export function mapAttributes(attributes: Record<string, any>): string {
+    const str = Object.entries(attributes)
+        .map(([key, value]) => `${key}="${value}"`)
+        .join(" ")
+    return str;
+}

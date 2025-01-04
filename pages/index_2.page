@@ -1,18 +1,7 @@
 ---
-import Users from "./components/Users.uhtm";
+import Users from "./components/users.squirrel";
 const title = "Users";
-
---- MAP TO -->
-
-const mapTags = {};
-const Users = importDynamic("./components/Users.uhtm");
-mapTags["Users] = Users;
-
-const html = transform(mapTags, `<html>... <Users title="${title}" class="mt-2"></Users> ... </html>`);
-render(document.getElementById("User_x4r2t"), html``);
-
 ---
-
 <html>
     <head>
         <meta charset="UTF-8" />
@@ -44,22 +33,15 @@ render(document.getElementById("User_x4r2t"), html``);
         </style>
     </head>
     <body>
-        <div id="navbar"></div>
+        <h1>${title}</h1>
         <div class="container">
             <div class="columns">
                 <div class="column col-3">
-                    <div id="nav"></div>
+                    <div id="nav">NAV</div>
                 </div>
                 <div class="divider-vert" data-content=""></div>
                 <div class="column">
-
                     <Users class="mt-2"></Users>
-
-                    -->
-
-                    <div id="Users_x4r2t"></div>
-                    <script src="./components/Users.uhtm" />
-
                 </div>
             </div>
         </div>

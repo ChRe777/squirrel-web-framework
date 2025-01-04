@@ -1,12 +1,12 @@
 // Constants
 //
-const DEFAULT_CONTENT_TYPE = "application/octet-stream";
+export const DEFAULT_CONTENT_TYPE = "application/octet-stream";
 
 // Public for client side
-const PUBLIC_DIR = "./public";
+export const PUBLIC_DIR = "./public";
 
 // Pages folder
-const PAGES_DIR = "./pages";
+export const PAGES_DIR = "./pages";
 
 // Components folder
-const COMPONENTS_DIR = "./components";
+export const COMPONENTS_DIR = "./components";

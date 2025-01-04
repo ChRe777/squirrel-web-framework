@@ -1,0 +1,4 @@
+---
+const { id, foo } = Squirrel.Props;
+---
+<div id="${id}">${foo}</div>

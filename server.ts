@@ -8,6 +8,7 @@ import { Parser } from 'npm:htmlparser2';
 import { lookup } from "https://deno.land/x/mime_types@1.0.0/mod.ts";
 // @ts-ignore
 import * as Constants from "./lib/constants.ts"
+import { transpile } from './lib/transpiler.ts';
 
 // Function to get the content-type based on file extension
 function getContentType(fileName: string): string | null {
@@ -31,8 +32,21 @@ function parseFrontmatter(filePath: string) {
     }
 }
 
+function makePage(path: string) {
+    const filepath = join(Constants.PAGES_DIR, path)
+    const context = {};
+    const content = Deno.readTextFileSync(filepath);
+    console.log(content);
+    return transpile(content, context);
+    return "error"
+}
+
 function makeSquirrel(path: string): string | null {
-    const filepath = join(Constants.PAGES_DIR, path);
+    console.log(Constants);
+
+    const filepath = join(Constants.COMPONENTS_DIR, path);
+
+    console.log(filepath);
 
     const result = parseFrontmatter(filepath);
     if (result == null) {
@@ -49,75 +63,42 @@ function makeSquirrel(path: string): string | null {
     return template;
 }
 
-function makePage(path: string) {
-    const filepath = join(Constants.PAGES_DIR, path)
-    const result = parseFrontmatter(filepath);
-    if (result == null) {
-        return null // TODO: return error
-    }
-
-    let buffer: string[] = [];
-
-    function appendString(str: string): void {
-        buffer.push(str)
-    }
-
-    function processCustomTag(name, content, attributes): string {
-        return ""
-    }
-
-    const html = result.body;
-
-    const parser = new Parser(
-        {
-            onopentag(name: string, attributes: any) {
-                if (name === "custom-tag" || name === "another-unknown") {
-                    appendString(processCustomTag(name, "", attributes));
-                } else {
-                    appendString(`<${name} ${Object.entries(attributes)
-                        .map(([key, value]) => `${key}="${value}"`)
-                        .join("")}>`);
-                }
-            },
-            ontext(text: string) {
-                appendString(text);
-            },
-            onclosetag(name: string) {
-                if (name === "custom-tag" || name === "another-unknown") {
-                    appendString(`</div>`);
-                } else {
-                    appendString(`</${name}>`);
-                }
-            },
-            onend() {
-                console.log("Parsing complete");
-            }
-        },
-        { decodeEntities: true, recognizeSelfClosing: true }
-    );
-
-    parser.write(html);
-    parser.end();
-}
-
 function serverFiles(path: string) {
 
-    if (path === "/") {
-        path = "/index.html"
-    }
+    //if (path === "/") {
+    //    path = "/index.html"
+    //}
 
 
     if (path === "/") {
-        path = "/index.squirrel"
+        path = "/index_2.page"
     }
 
-
+    /*
     if (path.endsWith(".page")) {
         let page = makePage(path)
         if (page == null) {
             return new Response(null, { status: 404 });
         } else {
             return new Response(page, {
+                status: 200,
+                headers: {
+                    "Content-Type": "text/html",
+                }
+            });
+        }
+    }
+    */
+
+    console.log("path", path);
+
+    if (path.endsWith(".page")) {
+        let squirrel = makePage(path);
+
+        if (squirrel == null) {
+            return new Response(null, { status: 404 });
+        } else {
+            return new Response(squirrel, {
                 status: 200,
                 headers: {
                     "Content-Type": "text/html",
