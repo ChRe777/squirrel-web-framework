@@ -13,7 +13,7 @@ function foo() {
     const Squirrel = { "Props": { "id": 123, "foo": "bar" } };
     // Code
     customTags["User"] = "./data/User.squirrel";
-    const { id, foo } = Squirrel.Props;
+    const { id, foo } = Squirrel.props;
     //
     const html_ = `<User id="${id}">${foo}</User>`;
     if (Object.keys(customTags).length) {

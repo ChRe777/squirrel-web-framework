@@ -21,14 +21,13 @@ let html_ = \`${data.html}\`;
 
 // If Custom Tags map them
 if (Object.keys(customTags).length) {
-    html_ = mapCustomTags(customTags, html_, Squirrel);
+    const context = Squirrel;
+    html_ = mapCustomTags(customTags, html_, context);
     console.log("html_", html_);
 }
 
 return html_;
 `;
-    console.log(source);
-
     return source
 }
 
@@ -42,14 +41,17 @@ export function transpileImports(code: string): string {
 
     const ending = ".squirrel";
 
-    const regex = /import\s+{([^}]+)}\s+from\s+["']([^"']+).squirrel["']\s*/g;
+    const pattern = `import\\s+{([^}]+)}\\s+from\\s+["']([^"']+)${ending}["']\\s*;`
+    const flags = 'g';  // Global search
+
+    const regex = new RegExp(pattern, flags);
 
     const result = code.replace(regex, (match, moduleNames, path) => {
         // Split the module names in case there are multiple (e.g., { Foo, Bar })
         const modules = moduleNames.split(',').map((name: string) => name.trim());
 
         // Create the customTags assignments for each module
-        return modules.map((moduleName: string) => `customTags["${moduleName}"] = "${path}${ending}"`).join('\n');
+        return modules.map((moduleName: string) => `customTags["${moduleName}"] = "${path}${ending}";`).join('\n');
     });
 
 
@@ -82,15 +84,3 @@ ${code}
     const html = evalBody({ code: code, html: body })
     return html.trim();
 }
-
-
-const foo = `---
-import { User } from "./data/User.squirrel";
-
-const id = "123";
-const foo = "foo";
-
----
-<div id="\${id}">\${foo}</div>
-`
-console.log(transpile(foo));

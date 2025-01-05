@@ -23,7 +23,10 @@ export function mapCustomTags(customTags: Record<string, any>, html: string, con
         // @ts-ignore
         const squirrel = Deno.readTextFileSync(filePath);
         const newContext = copyDeep(context)
-        newContext["Props"] = attributes;
+
+        // Insert attributes as props
+        newContext["props"] = attributes;
+
         const html = transpile(squirrel, newContext);
         return html;
     }

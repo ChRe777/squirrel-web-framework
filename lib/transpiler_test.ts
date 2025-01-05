@@ -3,6 +3,26 @@
 import { transpile } from "./transpiler.ts"
 import { transpileImports } from "./transpiler.ts"
 
+// @ts-ignore
+Deno.test({
+    name: "transpile imports of modules",
+    fn: () => {
+        const test = `
+    import {User} from "./test.squirrel";
+    import {Foo} from "./data/foo.squirrel";
+`;
+        const want = `
+    customTags["User"] = "./test.squirrel";
+    customTags["Foo"] = "./data/foo.squirrel";
+`;
+
+        const got = transpileImports(test);
+        if (got.trim() !== want.trim()) {
+            throw new Error(`\nWant \n${want}\n, but got \n${got}`);
+        }
+    }
+});
+
 // Test
 // @ts-ignore
 Deno.test("transpile simple squirrel file to html", () => {
@@ -23,12 +43,12 @@ Deno.test("transpile simple squirrel file to html", () => {
 
 // Test
 // @ts-ignore
-Deno.test("Test: Transpile complex squirrel file to html", async () => {
+Deno.test("Test: Transpile complex squirrel file to html", () => {
 
     const testFilePath = "./data/test_2.squirrel";
     const wantFilePath = "./data/test_2.html";
     const context = {
-        "Props": { "id": 123, "foo": "bar" }
+        "props": { "id": 123, "foo": "bar" }
     };
 
     // @ts-ignore
@@ -42,21 +62,6 @@ Deno.test("Test: Transpile complex squirrel file to html", async () => {
     }
 });
 
-// @ts-ignore
-Deno.test("transpile imports of modules", () => {
-    const test = `
-    import {User} from "./test.squirrel";
-    import {Foo} from "./data/foo.squirrel";
-`;
-    const want = `
-    customTags["User"] = "./test.squirrel";
-    customTags["Foo"] = "./data/foo.squirrel";
-`;
 
-    const got = transpileImports(test);
-    if (got.trim() !== want.trim()) {
-        throw new Error(`\nWant \n${want}\n, but got \n${got}`);
-    }
-});
 
 // deno test --allow-read --allow-write

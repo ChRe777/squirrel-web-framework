@@ -1,4 +1,4 @@
 ---
-const { id } = Squirrel.Props;
+const { id } = Squirrel.props;
 ---
 <div id="${id}"><slot /></div>
