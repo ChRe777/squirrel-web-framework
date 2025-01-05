@@ -43,7 +43,7 @@ export async function compile2(data: any): Promise<string> {
 
     const code_ = transformImports(data.code);
 
-    console.log(code_);
+    // console.log(code_);
 
     // Interpolating the values of squirrel.code and squirrel.template directly into the function string
     const code = `
@@ -56,7 +56,8 @@ return async function() {
     return result;
 };
     `;
-    console.log(code);
+
+    //console.log(code);
 
     // Creating a dynamic async function using new Function
     const dynamicFunction = new Function(code);
@@ -72,7 +73,7 @@ export async function compile(data: any): Promise<string> {
 
     const code_ = transformImports(data.code);
 
-    console.log(code_);
+    // console.log(code_);
 
     // Interpolating the values of squirrel.code and squirrel.template directly into the function string
     const code = `
@@ -91,4 +92,4 @@ return async function() {
     return await result();
 }
 
-console.log(await compile2(data));
+// console.log(await compile2(data));

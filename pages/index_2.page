@@ -1,5 +1,11 @@
 ---
-import Users from "./components/users.squirrel";
+
+import { Nav } from "./components/nav.squirrel";
+import { Navbar } from "./components/navbar.squirrel";
+import { Badge } from "./components/badge.uhtml";
+import { Users } from "./components/Users.uhtml";
+import { ButtonClick } from "./components/Button.uhtml";
+
 const title = "Users";
 ---
 <html>
@@ -33,15 +39,17 @@ const title = "Users";
         </style>
     </head>
     <body>
-        <h1>${title}</h1>
+        <Navbar></Navbar>
         <div class="container">
             <div class="columns">
                 <div class="column col-3">
-                    <div id="nav">NAV</div>
+                    <Nav></Nav>
                 </div>
                 <div class="divider-vert" data-content=""></div>
                 <div class="column">
+                    <Badge></Badge>
                     <Users class="mt-2"></Users>
+                    <ButtonClick class="mt-2"></ButtonClick>
                 </div>
             </div>
         </div>

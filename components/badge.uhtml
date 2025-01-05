@@ -1,0 +1,10 @@
+<div id="Badge_x4rt54"></div>
+<script type="module">
+import { render, html, signal } from 'https://cdn.jsdelivr.net/npm/uhtml/preactive.js';
+const count = signal(0);
+render(document.getElementById("Badge_x4rt54"), () => html`
+<button class="btn badge mt-2" data-badge=${count.value} onclick=${() => { count.value++ }}>
+  Button
+</button>
+`);
+</script>

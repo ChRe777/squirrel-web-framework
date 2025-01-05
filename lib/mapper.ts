@@ -23,16 +23,31 @@ export function mapCustomTags(customTags: Record<string, any>, html: string, con
     }
 
     function mapTag(name: string, attributes: any, context: Record<string, any>) {
-        const filePath = customTags[name];
-        // @ts-ignore
-        const squirrel = Deno.readTextFileSync(filePath);
-        const newContext = copyDeep(context)
 
-        // Insert attributes as props
-        newContext["props"] = attributes;
+        try {
+            const filePath = customTags[name];
 
-        const html = transpile(squirrel, newContext);
-        return html;
+            const newContext = copyDeep(context)
+            // Insert attributes as props
+            newContext["props"] = attributes;
+
+            if (filePath.endsWith(".squirrel")) {
+                // @ts-ignore
+                const content = Deno.readTextFileSync(filePath);
+                const html = transpile(content, newContext);
+                return html;
+            }
+
+            if (filePath.endsWith(".uhtml")) {
+                // @ts-ignore
+                const html = Deno.readTextFileSync(filePath);
+                // TODO: Transpile uhtml --> <div>...</div><script>...</script>
+                return html;
+            }
+        } catch {
+            return "<!-- UNKNOWN TAG -->"
+        }
+
     }
 
     const parser = new Parser(
@@ -42,6 +57,8 @@ export function mapCustomTags(customTags: Record<string, any>, html: string, con
             // <div>{text]</div>
             onopentag(name: string, attributes: any) {
                 if (name in customTags) {
+
+                    // TODO
                     const html = mapTag(name, attributes, context) // <div id="123"><slot ></slot></div>
 
                     // TODO:

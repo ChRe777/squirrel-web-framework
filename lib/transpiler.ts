@@ -4,9 +4,11 @@ import { mapCustomTags } from "./mapper.ts";
 
 import { Data } from "./types.ts"
 
-function evaluateAndReturn(dynamicCode: string) {
+function evaluateAndReturn(dynamicCode: string): string {
+    // Inject fn mapCustomTags as 1. Parameter to Function
     const fn = new Function('mapCustomTags', dynamicCode);
-    return fn(mapCustomTags); // Evaluate the code and return the result
+    const result = fn(mapCustomTags); // Evaluate the code and return the result
+    return result;
 }
 
 function makeDynamicCode(data: Data) {
@@ -19,13 +21,11 @@ ${data.code}
 // Interpolate variables in html
 let html_ = \`${data.html}\`;
 
-// If Custom Tags map them
+// If custom tags exists transpile them
 if (Object.keys(customTags).length) {
     const context = Squirrel;
     html_ = mapCustomTags(customTags, html_, context);
-    console.log("html_", html_);
 }
-
 return html_;
 `;
     return source
@@ -39,21 +39,30 @@ function evalBody(data: Data): string {
 
 export function transpileImports(code: string): string {
 
-    const ending = ".squirrel";
-
-    const pattern = `import\\s+{([^}]+)}\\s+from\\s+["']([^"']+)${ending}["']\\s*;`
+    /*
+    const endings = "(.squirrel|.uthml)"
+    const pattern = `import\\s+{([^}]+)}\\s+from\\s+["']([^"']+)(${endings})["']\\s`
     const flags = 'g';  // Global search
+    const regex_ = new RegExp(pattern, flags);
+    */
 
-    const regex = new RegExp(pattern, flags);
+    /*
+    import { Foo } from "./test/foo.squirrel";
+    import { User } from "./test/user.uhtml";
 
-    const result = code.replace(regex, (match, moduleNames, path) => {
+    customTags["Foo"] = "./test/foo.squirrel";
+    customTags["User"] = "./foo/user.squirrel";
+    */
+
+    const regex = /import\s+{([^}]+)}\s+from\s+["']([^"']+)(.squirrel|.uhtml)["']\s*[;]*/g;
+
+    const result = code.replace(regex, (match, moduleNames, path, ending) => {
         // Split the module names in case there are multiple (e.g., { Foo, Bar })
         const modules = moduleNames.split(',').map((name: string) => name.trim());
 
         // Create the customTags assignments for each module
         return modules.map((moduleName: string) => `customTags["${moduleName}"] = "${path}${ending}";`).join('\n');
     });
-
 
     return result;
 }
@@ -64,9 +73,10 @@ export function transpile(content: string, context: any = {}): string {
 
     const { frontmatter, body } = data;
 
+    let code = frontmatter;
+
     // 0. Inject Context object
     //
-    let code = frontmatter;
     code = `
 // Injected Context
 const Squirrel = ${JSON.stringify(context)};
@@ -74,13 +84,15 @@ const Squirrel = ${JSON.stringify(context)};
 // Code
 ${code}
 `
-
     // 1. Transform Imports
     //
     code = transpileImports(code);
 
     // 2. Eval body
     //
+
+    //console.log("code", code);
+
     const html = evalBody({ code: code, html: body })
     return html.trim();
 }
