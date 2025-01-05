@@ -1,84 +1,96 @@
 import { parseFrontmatter } from "./frontmatter.ts";
+// @ts-ignore
+import { mapCustomTags } from "./mapper.ts";
 
-interface Data {
-    code: string;
-    html: string;
+import { Data } from "./types.ts"
+
+function evaluateAndReturn(dynamicCode: string) {
+    const fn = new Function('mapCustomTags', dynamicCode);
+    return fn(mapCustomTags); // Evaluate the code and return the result
 }
 
-async function evalBody(data: Data): Promise<string> {
+function makeDynamicCode(data: Data) {
 
     const source = `
-    return async function() {
-        // Imports
-        //
-        const { mapCustomTags } = await import('./mapper.ts');
-        // Constants
-        //
-        const customTags = {};
-        //
-        ${data.code}
-        //
-        const html_ = \`${data.html}\`;
-        if (Object.keys(customTags).length) {
-            return mapCustomTags(customTags, html_);
-        }
+// Constants
+const customTags = {};
+${data.code}
 
-        return html_;
-    }`;
+// Interpolate variables in html
+let html_ = \`${data.html}\`;
 
-    const fn = new Function(source);
-    const foo = fn();
-    return await foo();
+// If Custom Tags map them
+if (Object.keys(customTags).length) {
+    html_ = mapCustomTags(customTags, html_, Squirrel);
+    console.log("html_", html_);
 }
 
-export function transpileImports(inputCode: string): string {
-    // Regular expression to match `import <name> from '<path>'`
-    //
-    const importRegex = /import\s+([a-zA-Z0-9_]+)\s+from\s+['"]([^'"]+)['"];/g;
+return html_;
+`;
+    console.log(source);
 
-    // Replace `import` statements with dynamic `import()`
-    //
-    /*
-    const transformedCode = inputCode.replace(importRegex, (match, moduleName, modulePath) => {
-        return `
-        //const ${moduleName} = await importDynamic("${modulePath}");
-        customTags["${moduleName}"] = ${modulePath};`;
-    });
-    */
+    return source
+}
 
-    const transformedCode = inputCode.replace(importRegex, (match, moduleName, modulePath) => {
-        return `customTags["${moduleName}"] = "${modulePath}";`;
+function evalBody(data: Data): string {
+    const dynamicCode = makeDynamicCode(data);
+    const result = evaluateAndReturn(dynamicCode);
+    return result;
+}
+
+export function transpileImports(code: string): string {
+
+    const ending = ".squirrel";
+
+    const regex = /import\s+{([^}]+)}\s+from\s+["']([^"']+).squirrel["']\s*/g;
+
+    const result = code.replace(regex, (match, moduleNames, path) => {
+        // Split the module names in case there are multiple (e.g., { Foo, Bar })
+        const modules = moduleNames.split(',').map((name: string) => name.trim());
+
+        // Create the customTags assignments for each module
+        return modules.map((moduleName: string) => `customTags["${moduleName}"] = "${path}${ending}"`).join('\n');
     });
 
-    return transformedCode;
+
+    return result;
 }
 
-export async function transpile(content: string, context: any = {}): Promise<string> {
+export function transpile(content: string, context: any = {}): string {
 
-    const result = parseFrontmatter(content.trim());
-    // TODO: error
-    if (result) {
-        const { frontmatter, body } = result;
+    const data = parseFrontmatter(content.trim())!;
 
-        // 0. Inject Context object
-        //
-        let code = frontmatter;
-        code = `
-            // Injected Context
-            const Squirrel = ${JSON.stringify(context)};
-            // Code
-            ${code}`
+    const { frontmatter, body } = data;
 
-        // 1. Transform Imports
-        //
-        code = transpileImports(code);
+    // 0. Inject Context object
+    //
+    let code = frontmatter;
+    code = `
+// Injected Context
+const Squirrel = ${JSON.stringify(context)};
 
-        // 2. Eval body
-        //
-        const html = await evalBody({ code: code, html: body })
-        console.log("html", html);
-        return html.trim();
-    }
-    // TODO
-    return ""
+// Code
+${code}
+`
+
+    // 1. Transform Imports
+    //
+    code = transpileImports(code);
+
+    // 2. Eval body
+    //
+    const html = evalBody({ code: code, html: body })
+    return html.trim();
 }
+
+
+const foo = `---
+import { User } from "./data/User.squirrel";
+
+const id = "123";
+const foo = "foo";
+
+---
+<div id="\${id}">\${foo}</div>
+`
+console.log(transpile(foo));

@@ -1,5 +1,5 @@
 ---
-import User from "./data/User.squirrel";
+import {User} from "./data/User.squirrel";
 const {id, foo} = Squirrel.Props;
 ---
 <User id="${id}">foo</User>

@@ -36,7 +36,7 @@ Deno.test("Test: Map User tag with slot", async () => {
 
 // Test
 // @ts-ignore
-Deno.test("Test: Map User tag withOUT slot", () => {
+Deno.test("Test: Map User tag withOUT slot", async () => {
     const html = `<User id="123"></User>`
     const want = `<div id="123"></div>`
     const customTags = {

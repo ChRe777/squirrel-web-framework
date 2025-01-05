@@ -11,19 +11,20 @@ export function mapCustomTags(customTags: Record<string, any>, html: string, con
 
     const append = (x: string) => {
         buffer.push(x);
+        console.log("append buffer:", buffer);
     }
 
     const copyDeep = (original: Record<string, any>) => {
         return JSON.parse(JSON.stringify(original));
     }
 
-    async function mapTag(name: string, attributes: any, context: Record<string, any>) {
+    function mapTag(name: string, attributes: any, context: Record<string, any>) {
         const filePath = customTags[name];
         // @ts-ignore
         const squirrel = Deno.readTextFileSync(filePath);
         const newContext = copyDeep(context)
         newContext["Props"] = attributes;
-        const html = await transpile(squirrel, newContext);
+        const html = transpile(squirrel, newContext);
         return html;
     }
 
@@ -31,9 +32,12 @@ export function mapCustomTags(customTags: Record<string, any>, html: string, con
 
     const parser = new Parser(
         {
-            async onopentag(name: string, attributes: any) {
+            onopentag(name: string, attributes: any) {
                 if (name in customTags) {
-                    const html = await mapTag(name, attributes, context)// <div id="123"><slot ></slot></div>
+
+                    console.log("name", name, "context", context);
+
+                    const html = mapTag(name, attributes, context) // <div id="123"><slot ></slot></div>
                     let [openTag, closeTag] = html.split('<slot />');
                     tagStack.push(closeTag);
                     append(openTag);
@@ -41,12 +45,13 @@ export function mapCustomTags(customTags: Record<string, any>, html: string, con
                     append(`<${name} ${mapAttributes(attributes)}>`);
                 }
             },
-            async ontext(text: string) {
+            ontext(text: string) {
                 append(text);
             },
-            async onclosetag(name: string) {
+            onclosetag(name: string) {
                 if (name in customTags) {
                     const name = tagStack.pop();
+                    console.log("name", name);
                     if (name) {
                         append(name);
                     }
