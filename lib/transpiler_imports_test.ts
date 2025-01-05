@@ -6,7 +6,6 @@ import { transpileImports } from "./transpiler.ts"
 // @ts-ignore
 Deno.test({
     name: "transpile imports of modules",
-    only: true,
     fn: () => {
         const test = `
     import {User} from "./test.squirrel";

@@ -7,11 +7,15 @@ import { transpile } from './transpiler.ts';
 //
 export function mapCustomTags(customTags: Record<string, any>, html: string, context: Record<string, any>): string {
 
-    const buffer: string[] = []
+    const buffer: string[] = [];
+    const tagStack: string[] = [];
 
     const append = (x: string) => {
         buffer.push(x);
-        console.log("append buffer:", buffer);
+    }
+
+    const toString = (): string => {
+        return buffer.join("");
     }
 
     const copyDeep = (original: Record<string, any>) => {
@@ -31,30 +35,35 @@ export function mapCustomTags(customTags: Record<string, any>, html: string, con
         return html;
     }
 
-    const tagStack: string[] = [];
-
     const parser = new Parser(
         {
+            // open
+            //   v
+            // <div>{text]</div>
             onopentag(name: string, attributes: any) {
                 if (name in customTags) {
-
-                    console.log("name", name, "context", context);
-
                     const html = mapTag(name, attributes, context) // <div id="123"><slot ></slot></div>
+
+                    // TODO:
                     let [openTag, closeTag] = html.split('<slot />');
                     tagStack.push(closeTag);
+
+
                     append(openTag);
                 } else {
                     append(`<${name} ${mapAttributes(attributes)}>`);
                 }
             },
+            // Text between tags <div>{text]</div>
             ontext(text: string) {
                 append(text);
             },
+            //             close
+            //               v
+            // <div>{text]</div>
             onclosetag(name: string) {
                 if (name in customTags) {
                     const name = tagStack.pop();
-                    console.log("name", name);
                     if (name) {
                         append(name);
                     }
@@ -73,7 +82,7 @@ export function mapCustomTags(customTags: Record<string, any>, html: string, con
     parser.write(html);
     parser.end();
 
-    return buffer.join("")
+    return toString();
 }
 
 // <OpenTagNAME attributes>TEXT<EndTagName>
