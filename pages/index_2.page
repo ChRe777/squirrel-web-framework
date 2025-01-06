@@ -2,6 +2,7 @@
 
 import { Nav } from "./components/nav.squirrel";
 import { Navbar } from "./components/navbar.squirrel";
+import { Breadcrumb } from "./components/breadcrumb.squirrel";
 import { Badge } from "./components/badge.uhtml";
 import { Users } from "./components/Users.uhtml";
 import { ButtonClick } from "./components/Button.uhtml";
@@ -47,11 +48,15 @@ const title = "Users";
                 </div>
                 <div class="divider-vert" data-content=""></div>
                 <div class="column">
+                    <Breadcrumb></Breadcrumb>
+                    <h1 class="mt-2">Deno + µHtml = squirrel</h1>
                     <Badge></Badge>
                     <Users class="mt-2"></Users>
                     <ButtonClick class="mt-2"></ButtonClick>
+                    <div id="button2" class="mt-2"></div>
                 </div>
             </div>
         </div>
+        <script type="module" src="/components/button.js"></script>
     </body>
 </html>
