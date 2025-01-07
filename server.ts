@@ -34,11 +34,19 @@ function parseFrontmatter(filePath: string) {
 
 function makePage(path: string) {
     const filepath = join(Constants.PAGES_DIR, path)
+
+    // TODO: Fill content with url, site, cookies,...
     const context = {};
+
+    // ---
+    // import { User } from "./components/User.squirrel"
+    // const id = 123;
+    // ---
+    // <User id=${id}></User>
+    //
     const content = Deno.readTextFileSync(filepath);
-    console.log(content);
+
     return transpile(content, context);
-    return "error"
 }
 
 function makeSquirrel(path: string): string | null {
@@ -71,7 +79,7 @@ function serverFiles(path: string) {
 
 
     if (path === "/") {
-        path = "/index_2.page"
+        path = "/index_3.page"
     }
 
     /*

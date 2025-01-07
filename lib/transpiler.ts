@@ -28,11 +28,18 @@ if (Object.keys(customTags).length) {
 }
 return html_;
 `;
+
+    Deno.writeTextFileSync(`./source${i++}.txt`, source);
+
     return source
 }
 
+
 function evalBody(data: Data): string {
     const dynamicCode = makeDynamicCode(data);
+
+    Deno.writeTextFileSync(`./dynamicCode${i++}.txt`, dynamicCode);
+
     const result = evaluateAndReturn(dynamicCode);
     return result;
 }
@@ -59,7 +66,6 @@ export function transpileImports(code: string): string {
     const result = code.replace(regex, (match, moduleNames, path, ending) => {
         // Split the module names in case there are multiple (e.g., { Foo, Bar })
         const modules = moduleNames.split(',').map((name: string) => name.trim());
-
         // Create the customTags assignments for each module
         return modules.map((moduleName: string) => `customTags["${moduleName}"] = "${path}${ending}";`).join('\n');
     });
@@ -67,32 +73,31 @@ export function transpileImports(code: string): string {
     return result;
 }
 
+let i = 0;
+
 export function transpile(content: string, context: any = {}): string {
 
     const data = parseFrontmatter(content.trim())!;
-
     const { frontmatter, body } = data;
 
+    const buffer: string[] = [];
     let code = frontmatter;
 
-    // 0. Inject Context object
-    //
-    code = `
-// Injected Context
-const Squirrel = ${JSON.stringify(context)};
+    // 1. Inject context
+    buffer.push(`const Squirrel = ${JSON.stringify(context)};`)
+    // 2. Inject code
+    buffer.push(code);
+    // 3. Transpile imports
+    code = transpileImports(buffer.join("\n"));
 
-// Code
-${code}
-`
-    // 1. Transform Imports
-    //
-    code = transpileImports(code);
+    Deno.writeTextFileSync(`./beforeEvalBody${i++}.html`, code + "\n" + body);
 
-    // 2. Eval body
-    //
+    const html = evalBody({
+        code: code,
+        html: body
+    });
 
-    //console.log("code", code);
+    Deno.writeTextFileSync(`./afterEvalBody${i++}.html`, html);
 
-    const html = evalBody({ code: code, html: body })
     return html.trim();
 }

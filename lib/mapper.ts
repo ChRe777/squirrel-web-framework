@@ -22,19 +22,39 @@ export function mapCustomTags(customTags: Record<string, any>, html: string, con
         return JSON.parse(JSON.stringify(original));
     }
 
+    let i = 0;
+
     function mapTag(name: string, attributes: any, context: Record<string, any>) {
 
         try {
+
+            // ./components/User.squirrel
             const filePath = customTags[name];
 
+            // { id:"123", url:"www.foo.com", ..}
             const newContext = copyDeep(context)
-            // Insert attributes as props
+
+            // <User id="123" style="color:red" ...>
             newContext["props"] = attributes;
 
             if (filePath.endsWith(".squirrel")) {
                 // @ts-ignore
                 const content = Deno.readTextFileSync(filePath);
+
+                // ---
+                // const Squirrel = {props: {foo:"bar"}} // <-- injected
+                // const {id} = Squirrel.props;
+                // const resp = await fetch("/api/users");
+                // const users = await resp.json();
+                // ---
+                // <ul id=${id}>
+                //  ${users.map(user => html`<li>${user.name}</li>`)}
+                // </ul>
+                //
                 const html = transpile(content, newContext);
+
+                Deno.writeTextFileSync(`./transpile${i++}.html`, html);
+
                 return html;
             }
 
@@ -54,7 +74,7 @@ export function mapCustomTags(customTags: Record<string, any>, html: string, con
         {
             // open
             //   v
-            // <div>{text]</div>
+            // <User>{text]</User>
             onopentag(name: string, attributes: any) {
                 if (name in customTags) {
 
