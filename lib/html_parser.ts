@@ -4,7 +4,7 @@ import { Parser } from 'npm:htmlparser2';
 // Docs
 // see https://github.com/fb55/htmlparser2/blob/master/src/Parser.ts
 
-function parseAsJson(html: string) {
+export function parseAsJson(html: string) {
 
     const root: object = {
         name: "root",
@@ -34,7 +34,7 @@ function parseAsJson(html: string) {
             // 1. Create new node
             //
             let newNode = {
-                type: "element",
+                type: (name == "slot") ? "slot" : "element",
                 name: name,
                 attributes: attributes,
                 children: []
@@ -55,6 +55,7 @@ function parseAsJson(html: string) {
             //
             let newTextNode = {
                 type: "text",
+                name: "#text",
                 content: text,
             }
 
@@ -62,8 +63,6 @@ function parseAsJson(html: string) {
             let current = getCurrent()
             current["children"].push(newTextNode);
 
-            // This will now only run after onopentag's async task is finished
-            console.log(`Text: '${text}'`);
         },
         onclosetag: (name) => {
 
@@ -77,6 +76,7 @@ function parseAsJson(html: string) {
             //
             let newCommentNode = {
                 type: "comment",
+                name: "#comment",
                 content: data,
                 children: []
             }
@@ -85,8 +85,6 @@ function parseAsJson(html: string) {
             //
             let current = getCurrent()
             current["children"].push(newCommentNode);
-
-            console.log('comment: ' + data);
         },
         oncommentend: () => {
         },
@@ -95,7 +93,7 @@ function parseAsJson(html: string) {
             //
             let newInstructionNode = {
                 type: "instruction",
-                name: name,
+                name: name, // TODO: ??
                 content: data,
             }
 
@@ -106,11 +104,10 @@ function parseAsJson(html: string) {
 
         },
         onend: () => {
-            console.log('Parsing finished.');
+            //console.log('Parsing finished.');
         },
         onerror: (error: any) => {
             error = error;
-            console.error('Parsing error:', error);
         },
     },
         // Options
@@ -132,9 +129,17 @@ function parseAsJson(html: string) {
 
 // Example HTML content
 //
-const html = `<!DOCTYPE html>
+const html = `
+    <!DOCTYPE html>
     <!-- TEST --->
-    <br/>`
+    <br/>
+    <div id="123">test</div>
+    <script type="module">
+        var x = 0;
+        x++;
+        console.log(x);
+    </script>
+`
 
 const html2 = `
 <html foo="bar">
@@ -149,12 +154,8 @@ bar
 </html>
 `;
 
-// Call the async parser
-//
-
-const [root, error] = parseAsJson(html);
-
-console.log("root:", root, "\nerror:", error);
+//const [root, error] = parseAsJson(html);
+//console.log("root:", root, "\nerror:", error);
 
 const example = `
 {

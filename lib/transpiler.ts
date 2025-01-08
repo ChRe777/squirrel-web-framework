@@ -1,20 +1,8 @@
+// Imports
+//
 import { parseFrontmatter } from "./frontmatter.ts";
-// @ts-ignore
 import { mapCustomTags } from "./mapper.ts";
-
 import { Data } from "./types.ts"
-
-async function evaluateAndReturn(dynamicCode: string): Promise<string> {
-
-    const fnBody = `
-    return async () => {
-        ${dynamicCode}
-    }`
-
-    const fn = new Function('mapCustomTags', fnBody);
-    const asyncFn = fn(mapCustomTags); // Evaluate the code and return the result
-    return await asyncFn();
-}
 
 function makeDynamicCode(data: Data) {
 
@@ -35,17 +23,28 @@ return html_;
 `;
 
     // @ts-ignore
-    Deno.writeTextFileSync(`./source${i++}.txt`, source);
+    //Deno.writeTextFileSync(`./source${i++}.txt`, source);
 
     return source
 }
 
+async function evaluateAndReturn(dynamicCode: string): Promise<string> {
+
+    const fnBody = `
+    return async () => {
+        ${dynamicCode}
+    }`
+
+    const fn = new Function('mapCustomTags', fnBody);
+    const asyncFn = fn(mapCustomTags); // Evaluate the code and return the result
+    return await asyncFn();
+}
 
 async function evalBody(data: Data): Promise<string> {
     const dynamicCode = makeDynamicCode(data);
 
     // @ts-ignore
-    await Deno.writeTextFile(`./dynamicCode${i++}.txt`, dynamicCode);
+    //await Deno.writeTextFile(`./dynamicCode${i++}.txt`, dynamicCode);
 
     const result = await evaluateAndReturn(dynamicCode);
     return result;
@@ -96,8 +95,6 @@ export async function transpile(content: string, context: any = {}): Promise<str
     buffer.push(code);
     // 3. Transpile imports
     code = transpileImports(buffer.join("\n"));
-
-    //Deno.writeTextFileSync(`./beforeEvalBody${i++}.html`, code + "\n" + body);
 
     const html = await evalBody({
         code: code,
