@@ -1,7 +1,7 @@
 // Imports
 //
 import { mapCustomTags } from "./mapper.ts"
-import { mapAttributes } from "./mapper.ts"
+
 
 // Test
 // @ts-ignore
@@ -14,7 +14,7 @@ Deno.test("Test: Map User tag with slot", async () => {
     const context = {
         "Props": { "id": "123", "foo": "bar" }
     }
-    const got = mapCustomTags(customTags, html, context);
+    const got = await mapCustomTags(customTags, html, context);
     if (got.trim() != want.trim()) {
         throw new Error(`\nWant \n${want}\n, but got \n${got}`)
     }
@@ -45,21 +45,7 @@ Deno.test("Test: Map User tag withOUT slot", async () => {
     const context = {
         "Props": { "id": "123", "foo": "bar" }
     }
-    const got = mapCustomTags(customTags, html, context);
-    if (got.trim() != want.trim()) {
-        throw new Error(`\nWant \n${want}\n, but got \n${got}`)
-    }
-});
-
-// Test
-// @ts-ignore
-Deno.test("Test: Map attributes", async () => {
-    const attributes: Record<string, any> = {
-        "id": 123,
-        "foo": "bar",
-    }
-    const want = 'id="123" foo="bar"'
-    const got = mapAttributes(attributes);
+    const got = await mapCustomTags(customTags, html, context);
     if (got.trim() != want.trim()) {
         throw new Error(`\nWant \n${want}\n, but got \n${got}`)
     }

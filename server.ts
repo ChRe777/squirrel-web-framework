@@ -1,16 +1,13 @@
 // Imports
+//
 // @ts-ignore
 import { join } from 'https://deno.land/std/path/mod.ts';
 // @ts-ignore
-import { Parser } from 'npm:htmlparser2';
-// Importing the mime module from deno.land
-// @ts-ignore
 import { lookup } from "https://deno.land/x/mime_types@1.0.0/mod.ts";
-// @ts-ignore
+// Lib
 import * as Constants from "./lib/constants.ts"
 import { transpile } from './lib/transpiler.ts';
 
-// Function to get the content-type based on file extension
 function getContentType(fileName: string): string | null {
     return lookup(fileName);  // Looks up MIME type by file extension
 }
@@ -166,4 +163,4 @@ export default {
     },
 };
 
-// > deno serve --allow-read=./public --allow-read=./components --allow-net server.ts
+// > deno serve --allow-read --allow-write --allow-net server.ts

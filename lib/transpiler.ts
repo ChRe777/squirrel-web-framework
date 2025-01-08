@@ -102,7 +102,7 @@ export async function transpile(content: string, context: any = {}): Promise<str
     });
 
     // @ts-ignore
-    await Deno.writeTextFile(`./afterEvalBody${i++}.html`, html);
+    // await Deno.writeTextFile(`./afterEvalBody${i++}.html`, html);
 
     return html.trim();
 }

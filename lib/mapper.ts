@@ -1,9 +1,11 @@
 // Imports
-// @ts-ignore
+//
 import { parseAsJson } from './html_parser.ts';
 import { renderHtml } from './html_renderer.ts';
 import { transpile } from './transpiler.ts';
 
+// Functions
+//
 function copyDeep(original: Record<string, any>) {
     return JSON.parse(JSON.stringify(original));
 }
@@ -13,7 +15,6 @@ function replaceSlot(node: any, childrenToReplace: any) {
     if (node.children == undefined) {
         return
     }
-
 
     console.log("replaceSlot - node", node)
     console.log("replaceSlot - childrenToReplace", childrenToReplace)
@@ -50,54 +51,6 @@ function replaceSlot(node: any, childrenToReplace: any) {
         }
     }
 }
-
-/*
-function mapTagOLD__(name: string, attributes: Record<string, any>, context: Record<string, any>) {
-
-    try {
-
-        // ./components/User.squirrel
-        const filePath = customTags[name];
-
-        // { id:"123", url:"www.foo.com", ..}
-        const newContext = copyDeep(context)
-
-        // <User id="123" style="color:red" ...>
-        newContext["props"] = attributes;
-
-        if (filePath.endsWith(".squirrel")) {
-            // @ts-ignore
-            const content = Deno.readTextFileSync(filePath);
-
-            // ---
-            // const Squirrel = {props: {foo:"bar"}} // <-- injected
-            // const {id} = Squirrel.props;
-            // const resp = await fetch("/api/users");
-            // const users = await resp.json();
-            // ---
-            // <ul id=${id}>
-            //  ${users.map(user => html`<li>${user.name}</li>`)}
-            // </ul>
-            //
-            const html = transpile(content, newContext);
-
-            Deno.writeTextFileSync(`./transpile${i++}.html`, html);
-
-            return html;
-        }
-
-        if (filePath.endsWith(".uhtml")) {
-            // @ts-ignore
-            const html = Deno.readTextFileSync(filePath);
-            // TODO: Transpile uhtml --> <div>...</div><script>...</script>
-            return html;
-        }
-    } catch {
-        return "<!-- UNKNOWN TAG -->"
-    }
-
-}
-*/
 
 async function onMapTag(name: string, customTags: Record<string, any>, attributes: Record<string, any>, context: Record<string, any>, childrenToReplace: any): Promise<any> {
 
@@ -148,7 +101,6 @@ async function onMapTag(name: string, customTags: Record<string, any>, attribute
         html = await Deno.readTextFile(filePath);
     }
 
-
     // 2. Parse HTML as JSON
     const [tree, error] = parseAsJson(html); // TODO: If error
 
@@ -169,13 +121,9 @@ async function onMapTag(name: string, customTags: Record<string, any>, attribute
 //
 export async function mapCustomTags(customTags: Record<string, any>, html: string, context: Record<string, any>): Promise<string> {
 
-    console.log("mapCustomTags - html", html);
-
     // TODO: Handle error to TOP
     //
     const [tree, error] = parseAsJson(html);
-
-    console.log("mapCustomTags - tree", tree);
 
     const html_ = renderHtml(tree, onMapTag, customTags);
     return html_;

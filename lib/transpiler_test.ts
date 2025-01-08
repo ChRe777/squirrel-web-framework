@@ -25,7 +25,7 @@ Deno.test({
 
 // Test
 // @ts-ignore
-Deno.test("transpile simple squirrel file to html", () => {
+Deno.test("transpile simple squirrel file to html", async () => {
 
     const testFilePath = "./data/test_1.squirrel";
     const wantFilePath = "./data/test_1.html"
@@ -35,7 +35,7 @@ Deno.test("transpile simple squirrel file to html", () => {
     // @ts-ignore
     const want = Deno.readTextFileSync(wantFilePath);
 
-    const got = transpile(squirrel);
+    const got = await transpile(squirrel);
     if (got.trim() !== want.trim()) {
         throw new Error(`Want ${want}, but got ${got}`);
     }
@@ -43,7 +43,7 @@ Deno.test("transpile simple squirrel file to html", () => {
 
 // Test
 // @ts-ignore
-Deno.test("Test: Transpile complex squirrel file to html", () => {
+Deno.test("Test: Transpile complex squirrel file to html", async () => {
 
     const testFilePath = "./data/test_2.squirrel";
     const wantFilePath = "./data/test_2.html";
@@ -56,7 +56,7 @@ Deno.test("Test: Transpile complex squirrel file to html", () => {
     // @ts-ignore
     const want = Deno.readTextFileSync(wantFilePath);
 
-    const got = transpile(squirrel, context);
+    const got = await transpile(squirrel, context);
     if (got.trim() !== want.trim()) {
         throw new Error(`Want ${want}, but got ${got}`);
     }
@@ -72,7 +72,7 @@ function normalizeHtml(html: string): string {
 
 // Test
 // @ts-ignore
-Deno.test("Test: Transpile complex squirrel file to html", () => {
+Deno.test("Test: Transpile complex squirrel file to html", async () => {
 
     const testFilePath = "./data/test_3.squirrel";
     const wantFilePath = "./data/test_3.html";
@@ -85,7 +85,7 @@ Deno.test("Test: Transpile complex squirrel file to html", () => {
     // @ts-ignore
     const want = Deno.readTextFileSync(wantFilePath);
 
-    const got = transpile(squirrel, context);
+    const got = await transpile(squirrel, context);
     if (normalizeHtml(got.trim()) !== normalizeHtml(want.trim())) {
         throw new Error(`\nWant \n${want}\n, but got\n \n${got}\n`);
     }
