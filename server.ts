@@ -32,7 +32,7 @@ function parseFrontmatter(filePath: string) {
     }
 }
 
-function makePage(path: string) {
+async function makePage(path: string) {
     const filepath = join(Constants.PAGES_DIR, path)
 
     // TODO: Fill content with url, site, cookies,...
@@ -44,9 +44,10 @@ function makePage(path: string) {
     // ---
     // <User id=${id}></User>
     //
-    const content = Deno.readTextFileSync(filepath);
+    const content = await Deno.readTextFile(filepath);
 
-    return transpile(content, context);
+    const result = await transpile(content, context);
+    return result;
 }
 
 function makeSquirrel(path: string): string | null {
@@ -71,7 +72,7 @@ function makeSquirrel(path: string): string | null {
     return template;
 }
 
-function serverFiles(path: string) {
+async function serverFiles(path: string) {
 
     //if (path === "/") {
     //    path = "/index.html"
@@ -101,7 +102,7 @@ function serverFiles(path: string) {
     console.log("path", path);
 
     if (path.endsWith(".page")) {
-        let squirrel = makePage(path);
+        let squirrel = await makePage(path);
 
         if (squirrel == null) {
             return new Response(null, { status: 404 });
@@ -161,7 +162,7 @@ function serverFiles(path: string) {
 export default {
     async fetch(request: Request) {
         const url = new URL(request.url);
-        return serverFiles(url.pathname)
+        return await serverFiles(url.pathname)
     },
 };
 

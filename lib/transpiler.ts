@@ -4,11 +4,16 @@ import { mapCustomTags } from "./mapper.ts";
 
 import { Data } from "./types.ts"
 
-function evaluateAndReturn(dynamicCode: string): string {
-    // Inject fn mapCustomTags as 1. Parameter to Function
-    const fn = new Function('mapCustomTags', dynamicCode);
-    const result = fn(mapCustomTags); // Evaluate the code and return the result
-    return result;
+async function evaluateAndReturn(dynamicCode: string): Promise<string> {
+
+    const fnBody = `
+    return async () => {
+        ${dynamicCode}
+    }`
+
+    const fn = new Function('mapCustomTags', fnBody);
+    const asyncFn = fn(mapCustomTags); // Evaluate the code and return the result
+    return await asyncFn();
 }
 
 function makeDynamicCode(data: Data) {
@@ -29,18 +34,20 @@ if (Object.keys(customTags).length) {
 return html_;
 `;
 
+    // @ts-ignore
     Deno.writeTextFileSync(`./source${i++}.txt`, source);
 
     return source
 }
 
 
-function evalBody(data: Data): string {
+async function evalBody(data: Data): Promise<string> {
     const dynamicCode = makeDynamicCode(data);
 
-    Deno.writeTextFileSync(`./dynamicCode${i++}.txt`, dynamicCode);
+    // @ts-ignore
+    await Deno.writeTextFile(`./dynamicCode${i++}.txt`, dynamicCode);
 
-    const result = evaluateAndReturn(dynamicCode);
+    const result = await evaluateAndReturn(dynamicCode);
     return result;
 }
 
@@ -75,7 +82,7 @@ export function transpileImports(code: string): string {
 
 let i = 0;
 
-export function transpile(content: string, context: any = {}): string {
+export async function transpile(content: string, context: any = {}): Promise<string> {
 
     const data = parseFrontmatter(content.trim())!;
     const { frontmatter, body } = data;
@@ -90,14 +97,15 @@ export function transpile(content: string, context: any = {}): string {
     // 3. Transpile imports
     code = transpileImports(buffer.join("\n"));
 
-    Deno.writeTextFileSync(`./beforeEvalBody${i++}.html`, code + "\n" + body);
+    //Deno.writeTextFileSync(`./beforeEvalBody${i++}.html`, code + "\n" + body);
 
-    const html = evalBody({
+    const html = await evalBody({
         code: code,
         html: body
     });
 
-    Deno.writeTextFileSync(`./afterEvalBody${i++}.html`, html);
+    // @ts-ignore
+    await Deno.writeTextFile(`./afterEvalBody${i++}.html`, html);
 
     return html.trim();
 }

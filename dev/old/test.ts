@@ -1,7 +1,7 @@
 // Imports
 //
 // Cannot use import statement outside a module
-import { mapCustomTags } from '../lib/mapper.ts';
+import { mapCustomTags } from '../../lib/mapper.ts';
 
 function foo() {
     // Constants

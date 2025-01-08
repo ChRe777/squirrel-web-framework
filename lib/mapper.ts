@@ -22,9 +22,7 @@ export function mapCustomTags(customTags: Record<string, any>, html: string, con
         return JSON.parse(JSON.stringify(original));
     }
 
-    let i = 0;
-
-    function mapTag(name: string, attributes: any, context: Record<string, any>) {
+    function mapTag(name: string, attributes: Record<string, any>, context: Record<string, any>) {
 
         try {
 
@@ -70,17 +68,21 @@ export function mapCustomTags(customTags: Record<string, any>, html: string, con
 
     }
 
+    let i = 0;
+
     const parser = new Parser(
         {
             // open
             //   v
             // <User>{text]</User>
-            onopentag(name: string, attributes: any) {
+            async onopentag(name: string, attributes: any) {
                 if (name in customTags) {
 
                     // TODO
-                    const html = mapTag(name, attributes, context) // <div id="123"><slot ></slot></div>
+                    const html = await mapTag(name, attributes, context) // <div id="123"><slot ></slot></div>
 
+                    console.log("type html:", typeof html);
+                    console.log("html:", html);
                     // TODO:
                     let [openTag, closeTag] = html.split('<slot />');
                     tagStack.push(closeTag);
@@ -121,8 +123,6 @@ export function mapCustomTags(customTags: Record<string, any>, html: string, con
 
     return toString();
 }
-
-// <OpenTagNAME attributes>TEXT<EndTagName>
 
 export function mapAttributes(attributes: Record<string, any>): string {
     const str = Object.entries(attributes)
