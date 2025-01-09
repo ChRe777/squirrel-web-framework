@@ -1,5 +1,5 @@
-// @ts-ignore
-import { Parser } from 'npm:htmlparser2';
+// @ts-ignore:
+import { Parser, Error } from 'npm:htmlparser2';
 
 // Docs
 // see https://github.com/fb55/htmlparser2/blob/master/src/Parser.ts
@@ -11,9 +11,8 @@ export function parseAsJson(html: string) {
         children: []
     }
 
-    let error = null;
-
-    let tagStack: object[] = [];
+    let error_: Error = null;
+    const tagStack: object[] = [];
 
     function getCurrent(): object {
         return tagStack[tagStack.length - 1];
@@ -42,7 +41,7 @@ export function parseAsJson(html: string) {
 
             // 2. Add new node to current
             //
-            let current = getCurrent()
+            const current = getCurrent()
             current["children"].push(newNode);
 
             // 3. Set new current
@@ -74,7 +73,7 @@ export function parseAsJson(html: string) {
 
             // 1. Create text node
             //
-            let newCommentNode = {
+            const newCommentNode = {
                 type: "comment",
                 name: "#comment",
                 content: data,
@@ -83,7 +82,7 @@ export function parseAsJson(html: string) {
 
             // 2. Add new node to current
             //
-            let current = getCurrent()
+            const current = getCurrent()
             current["children"].push(newCommentNode);
         },
         oncommentend: () => {
@@ -91,7 +90,7 @@ export function parseAsJson(html: string) {
         onprocessinginstruction: (name: string, data: string) => {
             // 1. Create text node
             //
-            let newInstructionNode = {
+            const newInstructionNode = {
                 type: "instruction",
                 name: name, // TODO: ??
                 content: data,
@@ -99,15 +98,15 @@ export function parseAsJson(html: string) {
 
             // 2. Add new node to current
             //
-            let current = getCurrent()
+            const current = getCurrent()
             current["children"].push(newInstructionNode);
 
         },
         onend: () => {
             //console.log('Parsing finished.');
         },
-        onerror: (error: any) => {
-            error = error;
+        onerror: (error: Error) => {
+            error_ = error;
         },
     },
         // Options
@@ -124,7 +123,7 @@ export function parseAsJson(html: string) {
     parser.write(html);
     parser.end();
 
-    return [root, error];
+    return [root, error_];
 }
 
 // Example HTML content

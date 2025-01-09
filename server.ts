@@ -1,53 +1,25 @@
 // Imports
 //
-// @ts-ignore
-import { join } from 'https://deno.land/std/path/mod.ts';
-// @ts-ignore
+// @ts-ignore:
 import { lookup } from "https://deno.land/x/mime_types@1.0.0/mod.ts";
+// @ts-ignore:
+import { join } from 'https://deno.land/std/path/mod.ts';
 // Lib
+import { makePage } from "./lib/page.ts";
+import { makeContext } from './lib/utils.ts';
+import { fileExists } from "./lib/utils.ts";
+// Constants
 import * as Constants from "./lib/constants.ts"
-import { transpile } from './lib/transpiler.ts';
 
-function getContentType(fileName: string): string | null {
+// config.ts
+// const config = await import('./config.json', { with: { type: 'json' } });
+
+function getContentType(fileName: string): false | string {
     return lookup(fileName);  // Looks up MIME type by file extension
 }
 
-function parseFrontmatter(filePath: string) {
-    // @ts-ignore
-    const fileContent = Deno.readTextFileSync(filePath); // Read file content
-    const frontmatterRegex = /^---\s*([\s\S]+?)\s*---/; // Matches the frontmatter block
-    const match = fileContent.match(frontmatterRegex);
-
-    if (match) {
-        // Extract frontmatter and body
-        const frontmatter = match[1].trim();
-        const body = fileContent.substring(match[0].length).trim();
-
-        return { frontmatter, body };
-    } else {
-        return null
-    }
-}
-
-async function makePage(path: string) {
-    const filepath = join(Constants.PAGES_DIR, path)
-
-    // TODO: Fill content with url, site, cookies,...
-    const context = {};
-
-    // ---
-    // import { User } from "./components/User.squirrel"
-    // const id = 123;
-    // ---
-    // <User id=${id}></User>
-    //
-    const content = await Deno.readTextFile(filepath);
-
-    const result = await transpile(content, context);
-    return result;
-}
-
-function makeSquirrel(path: string): string | null {
+/*
+function makeSquirrel(path: string, context: Record<string, any>): string | null {
     console.log(Constants);
 
     const filepath = join(Constants.COMPONENTS_DIR, path);
@@ -60,6 +32,7 @@ function makeSquirrel(path: string): string | null {
     }
 
     const template = `
+    const Squirrel = ${context};
     import { render, html } from 'https://cdn.jsdelivr.net/npm/uhtml/preactive.js';
     ${result.frontmatter}
     render(document.getElementById(id), () => html\`
@@ -68,40 +41,21 @@ function makeSquirrel(path: string): string | null {
 
     return template;
 }
+*/
 
-async function serverFiles(path: string) {
-
-    //if (path === "/") {
-    //    path = "/index.html"
-    //}
-
+async function serverFiles(path: string, context: Record<string, any>) {
 
     if (path === "/") {
         path = "/index_3.page"
     }
 
-    /*
     if (path.endsWith(".page")) {
-        let page = makePage(path)
-        if (page == null) {
-            return new Response(null, { status: 404 });
-        } else {
-            return new Response(page, {
-                status: 200,
-                headers: {
-                    "Content-Type": "text/html",
-                }
-            });
+        const [squirrel, error] = await makePage(path, context);
+        if (error != null) {
+            console.log(error);
+            return new Response(null, { status: 500 });
         }
-    }
-    */
-
-    console.log("path", path);
-
-    if (path.endsWith(".page")) {
-        let squirrel = await makePage(path);
-
-        if (squirrel == null) {
+        else if (squirrel == null) {
             return new Response(null, { status: 404 });
         } else {
             return new Response(squirrel, {
@@ -113,45 +67,30 @@ async function serverFiles(path: string) {
         }
     }
 
-    if (path.endsWith(".squirrel")) {
-        let squirrel = makeSquirrel(path);
-
-        if (squirrel == null) {
-            return new Response(null, { status: 404 });
-        } else {
-            return new Response(squirrel, {
-                status: 200,
-                headers: {
-                    "Content-Type": "application/javascript",
-                }
-            });
-        }
-    }
-
-    const content_type = getContentType(path) || Constants.DEFAULT_CONTENT_TYPE;
-
-    console.log(content_type, path);
-
-    let file = null;
 
     try {
-        const filepath = join(Constants.PUBLIC_DIR, path);
-        // @ts-ignore
-        file = Deno.readTextFileSync(filepath);
-    } catch {
-        return new Response(null, { status: 404 });
-    }
 
-    if (file) {
+        // Check if file NOT exists -> 404
+        //
+        const filepath = join(Constants.PUBLIC_DIR, path);
+        if (await fileExists(filepath) == false) {
+            return new Response(null, { status: 404 });
+        }
+
+        // If exists --> 200
+        //
+        // @ts-ignore:
+        const file = await Deno.readTextFile(filepath);
         return new Response(file, {
             status: 200,
             headers: {
-                "Content-Type": content_type,
+                "Content-Type": getContentType(path) || Constants.DEFAULT_CONTENT_TYPE,
             },
         });
-    }
 
-    return new Response(null, { status: 500 });
+    } catch {
+        return new Response(null, { status: 500 });
+    }
 }
 
 // Default Entry
@@ -159,7 +98,8 @@ async function serverFiles(path: string) {
 export default {
     async fetch(request: Request) {
         const url = new URL(request.url);
-        return await serverFiles(url.pathname)
+        const context = makeContext(request);
+        return await serverFiles(url.pathname, context)
     },
 };
 

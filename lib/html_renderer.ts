@@ -42,7 +42,7 @@ const ChildrenForSLOT = [
 
 //The path /Users/christophreif/Documents/Projects/deno/node_modules/typescript/lib/tsserver.js doesn't point to a valid tsserver install. Falling back to bundled TypeScript version.
 
-export async function renderHtml(root: any, onMapTag: any, customTags: Record<string, any>) {
+export async function renderHtml(root: any, context: Record<string, any>, onMapTag: any, customTags: Record<string, any>) {
 
     const buffer: string[] = [];
 
@@ -82,8 +82,8 @@ export async function renderHtml(root: any, onMapTag: any, customTags: Record<st
 
         //console.log("renderTree - node", node);
         //console.log("renderTree - customTags", customTags);
+        //console.log("renderTree - node.name", node.name);
 
-        console.log("renderTree - node.name", node.name);
         if (node.name in customTags) {
 
             // --> REPLACE <--
@@ -100,13 +100,8 @@ export async function renderHtml(root: any, onMapTag: any, customTags: Record<st
             // </div>
             //
 
-            //name: string, customTags: Record<string, any>, attributes: Record<string, any>, context: Record<string, any>, childrenToReplace: any
-
-            const context = {};
             const replacedNode = await onMapTag(node.name, customTags, node.attributes, context, node.children);
             node = replacedNode;
-
-            console.log("renderTree - replacedNode", replacedNode);
         }
 
         if (node.type == "text") {
@@ -125,7 +120,7 @@ export async function renderHtml(root: any, onMapTag: any, customTags: Record<st
         }
 
         // node.type == "element"
-
+        //
         if (node.name != "root") {
             buffer.push(`<${node.name}${renderAttributes(node.attributes)}>`);
         }

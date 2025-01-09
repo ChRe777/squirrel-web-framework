@@ -14,11 +14,9 @@ import { Breadcrumb } from "./components/breadcrumb.squirrel";
 <Layout>
     <Breadcrumb></Breadcrumb>
     <Users id="123" />
-    <Button id="123" />
+    <Button id="456" />
     <div id="button2" class="mt-2"></div>
     <script type="module" src="/components/button.js" />
-    <!--Users2 id="123" /-->
-
 </Layout>
 </body>
 </html>

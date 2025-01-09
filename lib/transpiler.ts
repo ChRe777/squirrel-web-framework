@@ -4,31 +4,28 @@ import { parseFrontmatter } from "./frontmatter.ts";
 import { mapCustomTags } from "./mapper.ts";
 import { Data } from "./types.ts"
 
-function makeDynamicCode(data: Data) {
+function makeDynamicCode(data: Data, context: Record<string, any>) {
 
     const source = `
-// Constants
-const customTags = {};
+
+/* */
+const Squirrel = ${JSON.stringify(context)};
+const customTags_ = {};
+/* */
 ${data.code}
-
-// Interpolate variables in html
-let html_ = \`${data.html}\`;
-
-// If custom tags exists transpile them
-if (Object.keys(customTags).length) {
-    const context = Squirrel;
-    html_ = mapCustomTags(customTags, html_, context);
+/* */
+const html_ = \`${data.template}\`;
+/* */
+if (Object.keys(customTags_).length == 0) {
+    return [html_, null];
 }
-return html_;
+return mapCustomTags(customTags_, html_, Squirrel);
 `;
-
-    // @ts-ignore
-    //Deno.writeTextFileSync(`./source${i++}.txt`, source);
 
     return source
 }
 
-async function evaluateAndReturn(dynamicCode: string): Promise<string> {
+async function evaluateAndReturn(dynamicCode: string): Promise<[string, any]> {
 
     const fnBody = `
     return async () => {
@@ -40,69 +37,61 @@ async function evaluateAndReturn(dynamicCode: string): Promise<string> {
     return await asyncFn();
 }
 
-async function evalBody(data: Data): Promise<string> {
-    const dynamicCode = makeDynamicCode(data);
-
-    // @ts-ignore
-    //await Deno.writeTextFile(`./dynamicCode${i++}.txt`, dynamicCode);
-
-    const result = await evaluateAndReturn(dynamicCode);
-    return result;
+async function evalBody(data: Data, context: Record<string, any>): Promise<[string, any]> {
+    try {
+        const dynamicCode = makeDynamicCode(data, context);
+        const [result, error] = await evaluateAndReturn(dynamicCode);
+        return [result.trim(), error];
+    } catch (error) {
+        return ["", error]
+    }
 }
 
 export function transpileImports(code: string): string {
 
     /*
-    const endings = "(.squirrel|.uthml)"
-    const pattern = `import\\s+{([^}]+)}\\s+from\\s+["']([^"']+)(${endings})["']\\s`
-    const flags = 'g';  // Global search
-    const regex_ = new RegExp(pattern, flags);
-    */
-
-    /*
-    import { Foo } from "./test/foo.squirrel";
-    import { User } from "./test/user.uhtml";
-
-    customTags["Foo"] = "./test/foo.squirrel";
-    customTags["User"] = "./foo/user.squirrel";
+        import { Foo } from "./test/foo.squirrel";
+        import { User } from "./test/user.uhtml";
+    --->
+        customTags["Foo"] = "./test/foo.squirrel";
+        customTags["User"] = "./foo/user.squirrel";
     */
 
     const regex = /import\s+{([^}]+)}\s+from\s+["']([^"']+)(.squirrel|.uhtml)["']\s*[;]*/g;
 
-    const result = code.replace(regex, (match, moduleNames, path, ending) => {
+    const result = code.replace(regex, (_, moduleNames, path, ending) => {
         // Split the module names in case there are multiple (e.g., { Foo, Bar })
         const modules = moduleNames.split(',').map((name: string) => name.trim());
         // Create the customTags assignments for each module
-        return modules.map((moduleName: string) => `customTags["${moduleName}"] = "${path}${ending}";`).join('\n');
+        return modules.map((moduleName: string) => `customTags_["${moduleName}"] = "${path}${ending}";`).join('\n');
     });
 
     return result;
 }
 
-let i = 0;
+export async function transpile(content: string, context: Record<string, any>): Promise<[string, any]> {
 
-export async function transpile(content: string, context: any = {}): Promise<string> {
-
+    //
+    // ---
+    // {code}
+    // ---
+    // {body}
+    //
     const data = parseFrontmatter(content.trim())!;
     const { frontmatter, body } = data;
 
-    const buffer: string[] = [];
-    let code = frontmatter;
+    // import { User } from "./components/user.squirrel"
+    // import { Button } from "./components/button.uhtml"
+    //
+    const code = transpileImports(frontmatter);
 
-    // 1. Inject context
-    buffer.push(`const Squirrel = ${JSON.stringify(context)};`)
-    // 2. Inject code
-    buffer.push(code);
-    // 3. Transpile imports
-    code = transpileImports(buffer.join("\n"));
-
-    const html = await evalBody({
+    // 3. Eval code and template
+    //
+    const data_ = {
         code: code,
-        html: body
-    });
+        template: body
+    }
 
-    // @ts-ignore
-    // await Deno.writeTextFile(`./afterEvalBody${i++}.html`, html);
-
-    return html.trim();
+    const [html, error] = await evalBody(data_, context);
+    return [html, error];
 }

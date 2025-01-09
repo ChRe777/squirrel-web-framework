@@ -3,21 +3,18 @@
 import { parseAsJson } from './html_parser.ts';
 import { renderHtml } from './html_renderer.ts';
 import { transpile } from './transpiler.ts';
+import { copyDeep } from './utils.ts';
 
 // Functions
 //
-function copyDeep(original: Record<string, any>) {
-    return JSON.parse(JSON.stringify(original));
-}
-
 function replaceSlot(node: any, childrenToReplace: any) {
 
     if (node.children == undefined) {
         return
     }
 
-    console.log("replaceSlot - node", node)
-    console.log("replaceSlot - childrenToReplace", childrenToReplace)
+    //console.log("replaceSlot - node", node)
+    //console.log("replaceSlot - childrenToReplace", childrenToReplace)
 
     // [
     //      child1
@@ -70,61 +67,61 @@ async function onMapTag(name: string, customTags: Record<string, any>, attribute
 
     // { id:"123", url:"www.foo.com", ..}
     const newContext = copyDeep(context);
+
     // <User id="123" style="color:red" ...>
     newContext["props"] = attributes;
 
     let html = "";
+    let error = null;
+
+
+    // ---
+    // const {id} = Squirrel.props;
+    // const resp = await fetch("/api/users");
+    // const users = await resp.json();
+    // ---
+    // <ul id=${id}>
+    //  ${users.map(user => html`<li>${user.name}</li>`)}
+    // </ul>
+    //
 
     if (filePath.endsWith(".squirrel")) {
 
-        // ---
-        // const Squirrel = {props: {foo:"bar"}} // <-- injected
-        // const {id} = Squirrel.props;
-        // const resp = await fetch("/api/users");
-        // const users = await resp.json();
-        // ---
-        // <ul id=${id}>
-        //  ${users.map(user => html`<li>${user.name}</li>`)}
-        // </ul>
-        //
-
-        // @ts-ignore
+        // @ts-ignore:
         const content = await Deno.readTextFile(filePath);
 
         // Transpile "*.squirrel" to Html
-        html = await transpile(content, newContext);
+        [html, error] = await transpile(content, newContext);
 
     }
 
     if (filePath.endsWith(".uhtml")) {
-        // @ts-ignore
-        html = await Deno.readTextFile(filePath);
+        // @ts-ignore:
+        [html, error] = await Deno.readTextFile(filePath);
     }
 
     // 2. Parse HTML as JSON
-    const [tree, error] = parseAsJson(html); // TODO: If error
+    const [tree, error2] = parseAsJson(html); // TODO: If error
 
     // 3. Substitute </slot> with children: [...]
     replaceSlot(tree, childrenToReplace);
 
     return tree;
-
-    /*
-    return new Promise((resolve) => {
-        resolve(treeSlotReplaced);
-    });
-    */
-
 }
 
 // Exports
 //
-export async function mapCustomTags(customTags: Record<string, any>, html: string, context: Record<string, any>): Promise<string> {
+export async function mapCustomTags(customTags: Record<string, any>, html: string, context: Record<string, any>): Promise<[string, any]> {
+
+    console.log("mapCustomTags - context:", context);
 
     // TODO: Handle error to TOP
     //
     const [tree, error] = parseAsJson(html);
+    if (error) {
+        return ["", error]
+    }
 
-    const html_ = renderHtml(tree, onMapTag, customTags);
-    return html_;
+    const html_ = await renderHtml(tree, context, onMapTag, customTags);
+    return [html_, null];
 }

@@ -1,5 +1,4 @@
 ---
-const id = "navbar";
 ---
 <header class="navbar bg-gray p-2">
   <section class="navbar-section">

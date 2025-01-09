@@ -3,7 +3,7 @@
 import { transpile } from "./transpiler.ts"
 import { transpileImports } from "./transpiler.ts"
 
-// @ts-ignore
+// @ts-ignore:
 Deno.test({
     name: "transpile imports of modules",
     fn: () => {
@@ -90,7 +90,6 @@ Deno.test("Test: Transpile complex squirrel file to html", async () => {
         throw new Error(`\nWant \n${want}\n, but got\n \n${got}\n`);
     }
 });
-
 
 
 // deno test --allow-read --allow-write
