@@ -1,6 +1,6 @@
 {
     "tasks": {
-        "start": "deno serve --allow-read --allow-write --allow-net server.ts",
+        "start": "deno serve --allow-read --allow-write --allow-net ./system/server.ts",
         "test": "deno test --allow-read --allow-write"
     }
 }

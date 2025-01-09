@@ -5,7 +5,7 @@ import { render, html, signal, detach } from 'https://cdn.jsdelivr.net/npm/uhtml
 // Constants
 //
 const count = signal(0);
-const id = "button2";
+const id = "button-3xc4";
 
 render(document.getElementById(id), () => html`
   <button class="btn btn-primary" onclick=${() => { count.value++ }}>

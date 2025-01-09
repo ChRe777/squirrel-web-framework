@@ -1,0 +1,138 @@
+// @ts-ignore:
+import { Parser, Error } from 'npm:htmlparser2';
+// Docs see https://github.com/fb55/htmlparser2/blob/master/src/Parser.ts
+// Type
+import type { Node } from './types.ts';
+
+// Exports
+//
+export function parseAsJson(html: string) {
+
+    const tagStack: Node[] = [];
+    let error_: Error = null;
+    const root: Node = {
+        name: "root",
+        type: "root",
+        children: [],
+        attributes: {},
+        content: ""
+    }
+
+    const getCurrent = (): Node => tagStack[tagStack.length - 1];
+    const setNewCurrent = (node: Node): number => tagStack.push(node);
+    const setCurrentBack = (): object | undefined => tagStack.pop();
+
+    const onopentag = (name: string, attributes: Record<string, any>) => {
+
+        // 1. Create new node
+        //
+        const newNode: Node = {
+            type: (name == "slot") ? "slot" : "element",
+            name: name,
+            attributes: attributes,
+            children: [],
+            content: ""
+        }
+
+        // 2. Add new node to current
+        //
+        const current = getCurrent()
+        current["children"].push(newNode);
+
+        // 3. Set new current
+        //
+        setNewCurrent(newNode);
+    }
+
+    const ontext = (text: string) => {
+
+        // 1. Create text node
+        //
+        const newTextNode = {
+            type: "text",
+            name: "#text",
+            attributes: {},
+            children: [],
+            content: text,
+        }
+
+        // 2. Add new node to current
+        //
+        const current = getCurrent()
+        current["children"].push(newTextNode);
+    }
+
+    const onclosetag = (_name: string) => {
+
+        // 1. Set current node back to last parent
+        //
+        setCurrentBack();
+    }
+
+    const oncomment = (data: string) => {
+
+        // 1. Create text node
+        //
+        const newCommentNode = {
+            type: "comment",
+            name: "#comment",
+            attributes: {},
+            content: data,
+            children: []
+        }
+
+        // 2. Add new node to current
+        //
+        const current = getCurrent()
+        current["children"].push(newCommentNode);
+    }
+
+    const onprocessinginstruction = (name: string, data: string) => {
+        // 1. Create text node
+        //
+        const newInstructionNode: Node = {
+            type: "instruction",
+            name: name, // TODO: ??
+            attributes: {},
+            children: [],
+            content: data,
+        }
+
+        // 2. Add new node to current
+        //
+        const current = getCurrent()
+        current["children"].push(newInstructionNode);
+    }
+
+    const onerror = (error: Error) => {
+        error_ = error;
+    }
+
+    const parser = new Parser(
+        {
+            onopentag,
+            ontext,
+            onclosetag,
+            oncomment,
+            oncommentend: () => { },
+            onprocessinginstruction,
+            onend: () => { },
+            onerror,
+        },  // Options
+        {
+            decodeEntities: true,
+            recognizeSelfClosing: true,
+            lowerCaseTags: false,
+        }
+    );
+
+    // Init
+    setNewCurrent(root);
+
+    // Parse
+    parser.write(html);
+    parser.end();
+
+    // Result
+    return [root, error_];
+}

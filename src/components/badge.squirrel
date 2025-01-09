@@ -1,0 +1,10 @@
+---
+import { signal } from 'https://cdn.jsdelivr.net/npm/uhtml/preactive.js';
+
+const id = "badge";
+const count = signal(7);
+---
+
+<button class="btn badge" data-badge=${count.value} onclick=${() => { count.value++ }}>
+  Button
+</button>

@@ -1,0 +1,21 @@
+---
+import { Layout } from './layout/layout.squirrel';
+---
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.4.5/spectre.min.css"/>
+        <style>
+            .title {
+                font-family: "Gergia", sans serif;
+                font-size: 2rem;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <Layout>
+            <div class="title">Squirrel Web-Framework</div>
+        </Layout>
+    </body>
+</html>
