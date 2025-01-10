@@ -35,7 +35,7 @@ async function serverFiles(request: Request): Promise<Response> {
 
     let path = url.pathname;
     if (path === "/") {
-        path = "/index_3.page"
+        path = "/home.page"
     }
 
     if (path.endsWith(".page")) {

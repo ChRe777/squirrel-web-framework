@@ -1,13 +1,24 @@
 ---
 import { Navbar } from "/components/navbar.squirrel";
 ---
+<style>
+    .center-center {
+        display: flex;
+        justify-content: center;  /* Horizontale Zentrierung */
+        align-items: center;      /* Vertikale Zentrierung */
+        height: calc(100vh - 60px); /* Optional: Setzt die Höhe des Containers auf 100% der Viewport-Höhe */
+    }
+
+</style>
 <Navbar></Navbar>
-<div class="container">
-    <div class="columns">
-        <div class="column col-4"></div>
-        <div class="column col-4">
-            <slot/>
+<div class="center-center" style="border: 0px dashed blue;">
+    <div class="container" style="border: 0px solid red;">
+        <div class="columns">
+            <div class="column col-12">
+                <center>
+                    <slot/>
+                </center>
+            </div>
         </div>
-        <div class="column col-4"></div>
     </div>
 </div>

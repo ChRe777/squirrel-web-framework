@@ -1,21 +1,71 @@
 ---
-import { Layout } from './layout/layout.squirrel';
+import { Layout } from '/layouts/layout.squirrel';
 ---
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.4.5/spectre.min.css"/>
         <style>
-            .title {
-                font-family: "Gergia", sans serif;
-                font-size: 2rem;
-                font-weight: bold;
+            body, html {
+                background-color: black;
             }
+
+            @keyframes lightenColor {
+                0% {
+                    text-shadow: 0px 0px 5px hsl(42, 50%, 00%);
+                }
+                89% {
+                    text-shadow: 0px 0px 50px hsl(42, 50%, 80%);
+                }
+                90% {
+                    text-shadow: 0px 0px 50px hsl(42, 50%, 80%);
+                }
+                100% {
+                    text-shadow: 0px 0px 40px hsl(42, 50%, 100%);
+                }
+            }
+
+            .title1 {
+                font-family: "Gill Sans","Impact", "Trebuchet MS Bold", sans serif;
+                font-size: 7rem;
+                font-weight: normal;
+                color: black;
+
+                animation-name: lightenColor;
+                animation-duration: 4s;
+                animation-delay: 2s;
+                animation-iteration-count: infinite;
+            }
+
+            .title2 {
+                font-family: "Gill Sans","Impact", "Trebuchet MS Bold", sans serif;
+                font-size: 7rem;
+                font-weight: normal;
+                color: black;
+
+                animation-name: lightenColor;
+                animation-duration: 4s;
+                animation-delay: 0s;
+                animation-iteration-count: infinite;
+            }
+
+            b {
+                font-size: 8rem;
+            }
+
+            .foo {
+                position: absolute;
+            }
+
         </style>
     </head>
     <body>
         <Layout>
-            <div class="title">Squirrel Web-Framework</div>
+            <div class="container">
+                <h1 class="text-primary title1 foo" style="z-index:1"><b>S</b>QUIRREL</h1>
+                <h1 class="text-primary title2 foo" style="z-index:2">fast</h1>
+            </div>
         </Layout>
     </body>
 </html>
