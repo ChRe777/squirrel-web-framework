@@ -22,7 +22,32 @@ function getContentType(fileName: string): false | string {
     return lookup(fileName);  // Looks up MIME type by file extension
 }
 
+function OK_Html(html: string): Response {
+    return new Response(html, {
+        status: 200,
+        headers: {
+            "Content-Type": "text/html",
+        }
+    })
+}
+
+function ERROR(error: Error): Response {
+    console.log(error);
+    return new Response(null, { status: 500 });
+}
+
+function NOT_FOUND(text: string = "") {
+    if (text == "") {
+        text = "Not found"
+    }
+
+    return new Response(text, { status: 404 });
+}
+
 /**
+* Serve Files
+*
+*   http://server.com/index_1 -> src/page/index_1
 *
 * @param path
 * @param context
@@ -35,27 +60,34 @@ async function serverFiles(request: Request): Promise<Response> {
 
     let path = url.pathname;
     if (path === "/") {
-        path = "/home.page"
+        path = "/index_4"
     }
 
+    path += ".page"
+    console.log("path", path);
+
+    // PAGE Files from "/src/pages"
+    //
     if (path.endsWith(".page")) {
+
+        const filepath = join("./src/", Constants.PAGES_DIR, path);
+
+        if (await fileExists(filepath) == false) {
+            return NOT_FOUND();
+        }
+
         const [squirrel, error] = await makePage(path, context);
-        if (error != null) {
-            console.log(error);
-            return new Response(null, { status: 500 });
-        }
-        else if (squirrel == null) {
-            return new Response(null, { status: 404 });
+
+        if (error == null) {
+            return OK_Html(squirrel);
         } else {
-            return new Response(squirrel, {
-                status: 200,
-                headers: {
-                    "Content-Type": "text/html",
-                }
-            });
+            return ERROR(error)
         }
+
     }
 
+    // PUBLIC Files from "/public/"-Folder
+    //
     try {
 
         // Check if file NOT exists -> 404

@@ -13,7 +13,7 @@ const users = await response.json();
     <body>
         <h3>Users:</h3>
         <ul>
-            ${users.map(user => `<UserItem name=${user.name}></UserItem>`).join(" ")}
+            ${users.map((user, index) => `<UserItem index=${index} name=${user.name}></UserItem>`).join(" ")}
         </ul>
     </body>
 </html>
