@@ -7,8 +7,10 @@ import { join } from 'https://deno.land/std/path/mod.ts';
 // Lib
 import { makePage } from "./page.ts";
 import { fileExists, makeContext } from './utils.ts';
+import { logger } from "./logger.ts"
 // Constants
 import * as Constants from "./constants.ts"
+
 
 // config.ts
 // const config = await import('./config.json', { with: { type: 'json' } });
@@ -31,8 +33,8 @@ function OK_Html(html: string): Response {
     })
 }
 
-function ERROR(error: Error): Response {
-    console.log(error);
+function ERROR(error: Error = Error("")): Response {
+    logger.error(error);
     return new Response(null, { status: 500 });
 }
 
@@ -44,6 +46,108 @@ function NOT_FOUND(text: string = "") {
     return new Response(text, { status: 404 });
 }
 
+async function analysePath(path: string): Promise<[string, string]> {
+    // o____  ____  ____  ____
+    //       v     v
+    //     page   public  ...
+
+    // Init
+    const NOT_FOUND = "NOT_FOUND";
+    let type: string = NOT_FOUND;
+
+    // Test 1
+    //
+    if (path == "/") {
+        path = "/index_4.page"
+        type = "PAGE";
+    }
+
+    console.log("type", type);
+
+    // Test 2 .. Page files
+    //
+    if (type == NOT_FOUND) {
+        const filePath = "./" + join(Constants.SRC_DIR, Constants.PAGES_DIR, `${path}.page`);
+        console.log("filePath", filePath);
+        const pageExists = await fileExists(filePath)
+        if (pageExists) {
+            type = "PAGE";
+            path = `${path}.page`
+        }
+
+    }
+
+    // Test 3 .. Public files
+    //
+    if (type == NOT_FOUND) {
+        const publicFileExists = await fileExists(join(Constants.PUBLIC_DIR, `${path}.page`))
+        if (publicFileExists) {
+            type = "PUBLIC";
+        }
+    }
+
+    // 4. NOT FOUND in PAGES or PUBLIC Folder
+    //
+    if (type == NOT_FOUND) {
+        type = "NOT_FOUND";
+    }
+
+    return [type, path]
+}
+
+
+async function servePage(path: string, request: Request): Promise<Response> {
+
+    // Init
+    //
+    const filepath = "./" + join(Constants.SRC_DIR, Constants.PAGES_DIR, path);
+
+    // Check again
+    //
+    if (await fileExists(filepath) == false) {
+        return NOT_FOUND();
+    }
+
+    // Make Context
+    //
+    const context = makeContext(request);
+
+    // Make Page
+    //
+    const [squirrel, error] = await makePage(path, context);
+
+    // Serve it
+    //
+    if (error == null) {
+        return OK_Html(squirrel);
+    } else {
+        return ERROR(error)
+    }
+}
+
+
+async function servePublics(path: string, request: Request): Promise<Response> {
+
+    // Check if file NOT exists -> 404
+    //
+    const filepath = join(Constants.PUBLIC_DIR, path);
+
+    // If exists --> 200
+    //
+    // @ts-ignore:
+    const file = await Deno.readTextFile(filepath);
+
+    // Serve It
+    //
+    return new Response(file, {
+        status: 200,
+        headers: {
+            "Content-Type": getContentType(path) || Constants.DEFAULT_CONTENT_TYPE,
+        },
+    });
+
+}
+
 /**
 * Serve Files
 *
@@ -53,64 +157,33 @@ function NOT_FOUND(text: string = "") {
 * @param context
 * @returns
 */
-async function serverFiles(request: Request): Promise<Response> {
+async function serveFiles(request: Request): Promise<Response> {
 
+    // Init
+    //
     const url = new URL(request.url);
-    const context = makeContext(request);
 
-    let path = url.pathname;
-    if (path === "/") {
-        path = "/index_4"
-    }
+    // Analyse Pathname
+    //
+    const [type, path] = await analysePath(url.pathname);
 
-    path += ".page"
+    console.log("type", type);
     console.log("path", path);
 
     // PAGE Files from "/src/pages"
     //
-    if (path.endsWith(".page")) {
-
-        const filepath = join("./src/", Constants.PAGES_DIR, path);
-
-        if (await fileExists(filepath) == false) {
-            return NOT_FOUND();
-        }
-
-        const [squirrel, error] = await makePage(path, context);
-
-        if (error == null) {
-            return OK_Html(squirrel);
-        } else {
-            return ERROR(error)
-        }
+    if (type == "PAGE") {
+        return await servePage(path, request);
 
     }
 
     // PUBLIC Files from "/public/"-Folder
     //
-    try {
-
-        // Check if file NOT exists -> 404
-        //
-        const filepath = join(Constants.PUBLIC_DIR, path);
-        if (await fileExists(filepath) == false) {
-            return new Response(null, { status: 404 });
-        }
-
-        // If exists --> 200
-        //
-        // @ts-ignore:
-        const file = await Deno.readTextFile(filepath);
-        return new Response(file, {
-            status: 200,
-            headers: {
-                "Content-Type": getContentType(path) || Constants.DEFAULT_CONTENT_TYPE,
-            },
-        });
-
-    } catch {
-        return new Response(null, { status: 500 });
+    if (type == "PUBLIC") {
+        return await servePublics(path, request);
     }
+
+    return NOT_FOUND();
 }
 
 /**
@@ -119,7 +192,11 @@ async function serverFiles(request: Request): Promise<Response> {
 export default {
 
     async fetch(request: Request) {
-        return await serverFiles(request)
+        try {
+            return await serveFiles(request);
+        } catch (_) {
+            return ERROR()
+        }
     },
 
 };
