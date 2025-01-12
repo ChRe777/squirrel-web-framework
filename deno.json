@@ -1,0 +1,6 @@
+{
+    "tasks": {
+        "install": "deno run --allow-net --allow-read --allow-sys --allow-write --allow-env --allow-import --allow-run install.ts",
+        "build": "deno run --allow-read --allow-env --allow-sys --allow-write build.ts"
+    }
+}

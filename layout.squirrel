@@ -1,0 +1,16 @@
+---
+import { Navbar } from "/components/navbar.squirrel";
+---
+<style>
+
+</style>
+<Navbar></Navbar>
+<div class="container" style="border: 0px solid red;">
+    <div class="columns">
+        <div class="column col-3"/>
+        <div class="column col-6">
+            <slot/>
+        </div>
+        <div class="column col-3"/>
+    </div>
+</div>

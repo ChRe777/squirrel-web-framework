@@ -1,7 +1,15 @@
-# Squirrel Web Framework
+# SQUIRREL
 
-Fast and modern build with Deno + uHtml
+A fast, simple and modern 7th gen framework.
 
-## Start Sercer
+## Why fast?
 
-> deno --allow-read alloe-write server.ts
+It is fast because it is build with Deno and uHtml.
+
+## Why simple?
+
+It is simple made.
+
+## Why modern?
+
+It is modern, because it uses state of the art ideas.
