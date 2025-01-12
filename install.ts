@@ -10,10 +10,14 @@ import { shelljs } from "./deps.ts";
 // Shortcuts
 //
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+//
 const bblue = chalk.blue.bold;
 const bred = chalk.red.bold;
 const bgreen = chalk.green.bold;
+//
 const green = chalk.green;
+const red = chalk.red;
+const blue = chalk.blue;
 
 // ----------------------------------------------------------------------------
 
@@ -63,7 +67,7 @@ async function askQuestions(): Promise<object> {
   return response;
 }
 
-async function information(response: any) {
+async function giveInformation(response: any) {
   console.log(bblue("Congratulation!"));
   await delay(777);
 
@@ -156,18 +160,23 @@ function doInstallation(props: any) {
 // ----------------------------------------------------------------------------
 
 // Step R: Init
+//
 console.clear();
 
 // Step 0: Title
+//
 await showTitle();
 
 // Step 1: Ask user questions
+//
 const answers = await askQuestions();
 
 // Step 2: Actions to installation
+//
 doInstallation(answers);
 
 // Step 3: Information after installation
-await information(answers);
+//
+await giveInformation(answers);
 
 // ----------------------------------------------------------------------------
