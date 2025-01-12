@@ -1,3 +1,0 @@
-WARNING Sat Jan 11 2025 12:45:01 GMT+0100 (Central European Standard Time) example warning
-ERROR Sat Jan 11 2025 12:45:01 GMT+0100 (Central European Standard Time) example error message
-CRITICAL Sat Jan 11 2025 12:45:01 GMT+0100 (Central European Standard Time) example critical message

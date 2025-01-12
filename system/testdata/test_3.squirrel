@@ -1,9 +1,0 @@
----
-import { User } from "./data/User.squirrel";
-import { Foo } from "./data/Foo.squirrel";
-
-const id = 123;
----
-<User id="${id}">
-    <Foo id="234" foo="bar"></Foo>
-</User>

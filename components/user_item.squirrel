@@ -1,6 +1,0 @@
----
-const { name } = Squirrel.props;
----
-<li>
-    ${name}
-</li>

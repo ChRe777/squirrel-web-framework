@@ -1,6 +1,0 @@
----
-const name = "bar";
----
-<div name=${name}>
-    </slot>
-</div>
