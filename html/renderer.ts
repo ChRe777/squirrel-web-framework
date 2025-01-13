@@ -1,31 +1,31 @@
 // ------------------------------IMPORTS---------------------------------------
 
 // Lib
-import { Attributes, Node, Context } from "../types/mod.ts";
-
+import { Attributes, Context, Node } from "../types/mod.ts";
 
 // ------------------------------EXPORTS---------------------------------------
 
 /**
-*
-* @param root
-* @param context
-* @param onMapTag
-* @param customTags
-* @returns
-*/
-export async function renderHtml(root: Node, context: Context, onMapTag: any, customTags: Record<string, Error>): Promise<[string, Error | null]> {
-
+ * @param root
+ * @param context
+ * @param onMapTag
+ * @param customTags
+ * @returns
+ */
+export async function renderHtml(
+    root: Node,
+    context: Context,
+    onMapTag: any,
+    customTags: Record<string, Error>,
+): Promise<[string, Error | null]> {
     const buffer: string[] = [];
 
     // Function to traverse the tree asynchronously
     async function renderTree(node: Node): Promise<Error | null> {
-
         //
         // Fetch data for the current node
         //
         if (node.name in customTags) {
-
             // --> REPLACE <--
             //
             // <User id="test">
@@ -40,9 +40,15 @@ export async function renderHtml(root: Node, context: Context, onMapTag: any, cu
             // </div>
             //
 
-            const [replacedNode, error] = await onMapTag(node.name, customTags, node.attributes, context, node.children);
+            const [replacedNode, error] = await onMapTag(
+                node.name,
+                customTags,
+                node.attributes,
+                context,
+                node.children,
+            );
             if (error != null) {
-                return error
+                return error;
             }
 
             node = replacedNode;
@@ -50,17 +56,17 @@ export async function renderHtml(root: Node, context: Context, onMapTag: any, cu
 
         if (node.type == "text") {
             buffer.push(node.content);
-            return null
+            return null;
         }
 
         if (node.type == "comment") {
             buffer.push(`<!--${node.content}>`);
-            return null
+            return null;
         }
 
         if (node.type == "instruction") {
             buffer.push(`<${node.content}>`); // <!-DOCTYPE html>
-            return null
+            return null;
         }
 
         // node.type == "element"
@@ -71,7 +77,6 @@ export async function renderHtml(root: Node, context: Context, onMapTag: any, cu
 
         // If the node has children, recursively traverse them
         if (node.children && Array.isArray(node.children)) {
-
             for (const child of node.children) {
                 await renderTree(child);
             }
@@ -88,39 +93,35 @@ export async function renderHtml(root: Node, context: Context, onMapTag: any, cu
 
     const error = await renderTree(root);
     if (error != null) {
-        return ["", error]
+        return ["", error];
     }
 
-    const html = buffer.join("")
-    return [html, null]
+    const html = buffer.join("");
+    return [html, null];
 }
-
 
 // --------------------------------INTERN--------------------------------------
 
-
 /**
-*
-* @param obj
-* @returns
-*/
+ * @param obj
+ * @returns
+ */
 function isEmpty(obj: object): boolean {
     return Object.keys(obj).length === 0;
 }
 
 /**
-*
-* @param attributes
-* @returns
-*/
+ * @param attributes
+ * @returns
+ */
 function renderAttributes(attributes: Attributes): string {
     if (attributes == null || attributes == undefined || isEmpty(attributes)) {
-        return ""
+        return "";
     }
 
     const str = Object.entries(attributes)
         .map(([key, value]) => `${key}="${value}"`)
-        .join(" ")
+        .join(" ");
 
     return " " + str;
 }

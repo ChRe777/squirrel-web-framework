@@ -13,6 +13,6 @@ const html = `<html>
             UserList
         </ul>
     </body>
-</html> `
+</html> `;
 const [tree, error] = parseAsJson(html);
 console.log(tree);

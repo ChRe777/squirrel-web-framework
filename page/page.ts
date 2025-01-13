@@ -3,24 +3,26 @@
 // @ts-ignore: dd
 
 // Lib
-import { transpile } from './transpiler.ts';
-import { fileExists, createHash, join } from '../utils/mod.ts';
+import { transpile } from "./transpiler.ts";
+import { createHash, fileExists, join } from "../utils/mod.ts";
 // Constants
-import * as Constants from "../constants/mod.ts"
+import * as Constants from "../constants/mod.ts";
 
 // Exports
 //
-export async function makePage(path: string, context: Record<string, any>): Promise<[string, any]> {
-
-    const filepath = join("./src/", Constants.PAGES_DIR, path)
+export async function makePage(
+    path: string,
+    context: Record<string, any>,
+): Promise<[string, any]> {
+    const filepath = join("./src/", Constants.PAGES_DIR, path);
     // @ts-ignore:
     const content = await Deno.readTextFile(filepath);
 
     // Check if hash exists
     //
     const hash = await createHash(content);
-    const filePathHash = `./.cache/${hash}`
-    const exists = await fileExists(filePathHash)
+    const filePathHash = `./.cache/${hash}`;
+    const exists = await fileExists(filePathHash);
 
     const ENABLE_CACHE = false;
 
@@ -33,8 +35,10 @@ export async function makePage(path: string, context: Record<string, any>): Prom
 
     const [html, error] = await transpile(content, context);
     if (exists == false && error == null) {
-        // @ts-ignore:
-        await Deno.writeTextFile(filePathHash, html)
+        if (ENABLE_CACHE) {
+            // @ts-ignore:
+            await Deno.writeTextFile(filePathHash, html);
+        }
     }
 
     return [html, error];

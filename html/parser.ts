@@ -3,15 +3,14 @@
 // see https://github.com/fb55/htmlparser2/blob/master/src/Parser.ts
 //
 // @ts-ignore:
-import { Parser, Error } from 'npm:htmlparser2';
+import { Error, Parser } from "npm:htmlparser2";
 
 // Type
-import type { Node } from '../types/mod.ts';
+import type { Node } from "../types/mod.ts";
 
 // Exports
 //
 export function parseAsJson(html: string) {
-
     const tagStack: Node[] = [];
     let error_: Error = null;
     const root: Node = {
@@ -19,15 +18,14 @@ export function parseAsJson(html: string) {
         type: "root",
         children: [],
         attributes: {},
-        content: ""
-    }
+        content: "",
+    };
 
     const getCurrent = (): Node => tagStack[tagStack.length - 1];
     const setNewCurrent = (node: Node): number => tagStack.push(node);
     const setCurrentBack = (): object | undefined => tagStack.pop();
 
     const onopentag = (name: string, attributes: Record<string, any>) => {
-
         // 1. Create new node
         //
         const newNode: Node = {
@@ -35,21 +33,20 @@ export function parseAsJson(html: string) {
             name: name,
             attributes: attributes,
             children: [],
-            content: ""
-        }
+            content: "",
+        };
 
         // 2. Add new node to current
         //
-        const current = getCurrent()
+        const current = getCurrent();
         current["children"].push(newNode);
 
         // 3. Set new current
         //
         setNewCurrent(newNode);
-    }
+    };
 
     const ontext = (text: string) => {
-
         // 1. Create text node
         //
         const newTextNode = {
@@ -58,23 +55,21 @@ export function parseAsJson(html: string) {
             attributes: {},
             children: [],
             content: text,
-        }
+        };
 
         // 2. Add new node to current
         //
-        const current = getCurrent()
+        const current = getCurrent();
         current["children"].push(newTextNode);
-    }
+    };
 
     const onclosetag = (_name: string) => {
-
         // 1. Set current node back to last parent
         //
         setCurrentBack();
-    }
+    };
 
     const oncomment = (data: string) => {
-
         // 1. Create text node
         //
         const newCommentNode = {
@@ -82,14 +77,14 @@ export function parseAsJson(html: string) {
             name: "#comment",
             attributes: {},
             content: data,
-            children: []
-        }
+            children: [],
+        };
 
         // 2. Add new node to current
         //
-        const current = getCurrent()
+        const current = getCurrent();
         current["children"].push(newCommentNode);
-    }
+    };
 
     const onprocessinginstruction = (name: string, data: string) => {
         // 1. Create text node
@@ -100,17 +95,17 @@ export function parseAsJson(html: string) {
             attributes: {},
             children: [],
             content: data,
-        }
+        };
 
         // 2. Add new node to current
         //
-        const current = getCurrent()
+        const current = getCurrent();
         current["children"].push(newInstructionNode);
-    }
+    };
 
     const onerror = (error: Error) => {
         error_ = error;
-    }
+    };
 
     const parser = new Parser(
         {
@@ -118,20 +113,25 @@ export function parseAsJson(html: string) {
             ontext,
             onclosetag,
             oncomment,
-            oncommentend: () => { },
+            oncommentend: () => {},
             onprocessinginstruction,
-            onend: () => { },
+            onend: () => {},
             onerror,
-        },  // Options
+        }, // Options
         {
             decodeEntities: true,
             recognizeSelfClosing: true,
             lowerCaseTags: false,
-        }
+        },
     );
 
     // Init
     setNewCurrent(root);
+
+    console.log("PARSER - html", html);
+    console.log("");
+
+    // PARSER - html <NavTree children=[{"name":"Getting Started","id":"getting_started","link":"/getting_started","children":[{"name":"Foo","id":"getting_stared|foo","link":"/getting_stared/foo","children":[]},{"name":"Bar","id":"getting_stared|bar","link":"/getting_stared/bar","children":[]}]},{"name":"Installation","id":"installation","link":"/installation"}] />
 
     // Parse
     parser.write(html);

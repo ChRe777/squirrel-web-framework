@@ -1,10 +1,9 @@
-
 /**
-* Context type
-*/
+ * Context type
+ */
 export type Context = Record<string, any>;
 
 /**
-* Attrobutes type
-*/
+ * Attrobutes type
+ */
 export type Attributes = Record<string, any>;

@@ -1,6 +1,10 @@
 {
     "tasks": {
-        "install": "deno run --allow-net --allow-read --allow-sys --allow-write --allow-env --allow-import --allow-run install.ts",
+        "install": "deno run --allow-net --allow-read --allow-sys --allow-write --allow-env --allow-import --allow-run ./setup/install.ts",
         "build": "deno run --allow-read --allow-env --allow-sys --allow-write build.ts"
+    },
+    "fmt": {
+        "lineWidth": 100,
+        "indentWidth": 4
     }
 }

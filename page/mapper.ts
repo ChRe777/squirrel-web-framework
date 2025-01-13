@@ -1,21 +1,21 @@
 // Imports
 //
-import { transpile } from './mod.ts';
+import { transpile } from "./mod.ts";
 
 // External deps from this module
 //
-import { parseAsJson, renderHtml } from '../html/mod.ts';
-import { tryReadTextFile, copyDeep, join } from '../utils/mod.ts';
+import { parseAsJson, renderHtml } from "../html/mod.ts";
+import { copyDeep, join, tryReadTextFile } from "../utils/mod.ts";
+import { logger } from "../logging/mod.ts";
 
 // Types
-import type { Node, Context, Attributes } from '../types/mod.ts';
+import type { Attributes, Context, Node } from "../types/mod.ts";
 
 // Functions
 //
 function replaceSlot(node: Node, childrenToReplace: Node[]) {
-
     if (node.children == undefined) {
-        return
+        return;
     }
 
     //console.log("replaceSlot - node", node)
@@ -56,8 +56,13 @@ function replaceSlot(node: Node, childrenToReplace: Node[]) {
 
 // Exports
 //
-export async function onMapTag(name: string, customTags: Record<string, any>, attributes: Attributes, context: Context, childrenToReplace: Node[]): Promise<[object, any]> {
-
+export async function onMapTag(
+    name: string,
+    customTags: Record<string, any>,
+    attributes: Attributes,
+    context: Context,
+    childrenToReplace: Node[],
+): Promise<[object, any]> {
     // ---
     // const Squirrel = {props: {foo:"bar"}} // <-- injected
     // const {id} = Squirrel.props;
@@ -88,8 +93,6 @@ export async function onMapTag(name: string, customTags: Record<string, any>, at
     // </ul>
     //
 
-    console.log("1 onMapTag - filePath:", filePath);
-
     if (filePath.startsWith("/components/")) {
         filePath = join("./src", filePath);
     }
@@ -102,7 +105,6 @@ export async function onMapTag(name: string, customTags: Record<string, any>, at
     // .squirrel -> html
     //
     if (filePath.endsWith(".squirrel")) {
-
         // CurrentDir = Users/christophreif/Documents/Projects/deno
 
         // @ts-ignore:
@@ -110,14 +112,16 @@ export async function onMapTag(name: string, customTags: Record<string, any>, at
 
         // 1. Transpile "*.squirrel" to Html
         const [html, error1] = await transpile(content, newContext);
+
         if (error1 != null) {
-            return [{}, error1]
+            logger.error(error1);
+            return [{}, error1];
         }
 
         // 2. Parse HTML as JSON
         const [tree, error2] = parseAsJson(html); // TODO: If error
         if (error2 != null) {
-            return [{}, error2]
+            return [{}, error2];
         }
 
         // 3. Substitute </slot> with children: [...]
@@ -129,34 +133,41 @@ export async function onMapTag(name: string, customTags: Record<string, any>, at
     // .uhtml --> html
     //
     if (filePath.endsWith(".uhtml")) {
-
         const [html, error1] = await tryReadTextFile(filePath);
         if (error1 != null) {
-            return [{}, error1]
+            return [{}, error1];
         }
 
         // 2. Parse HTML as JSON
         const [tree, error2] = parseAsJson(html); // TODO: If error
         if (error2 != null) {
-            return [{}, error2]
+            return [{}, error2];
         }
 
-        return [tree, null]
+        return [tree, null];
     }
 
-    return [{}, Error("not supported type")]
+    return [{}, Error("not supported type")];
 }
 
-export async function mapCustomTags(customTags: Record<string, any>, html: string, context: Context): Promise<[string, any]> {
-
+export async function mapCustomTags(
+    customTags: Record<string, any>,
+    html: string,
+    context: Context,
+): Promise<[string, any]> {
     const [dom_tree, error1] = parseAsJson(html);
     if (error1 != null) {
-        return ["", error1]
+        return ["", error1];
     }
 
-    const [html_, error2] = await renderHtml(dom_tree, context, onMapTag, customTags);
+    const [html_, error2] = await renderHtml(
+        dom_tree,
+        context,
+        onMapTag,
+        customTags,
+    );
     if (error2 != null) {
-        return ["", error2]
+        return ["", error2];
     }
 
     if (html_ != null) {

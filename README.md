@@ -1,6 +1,6 @@
 # SQUIRREL
 
-A fast, simple and modern 7th gen framework.
+A fast, simple and modern 7th generation framework.
 
 ## Why fast?
 

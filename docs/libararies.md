@@ -2,7 +2,4 @@
 
 // inquirer alternatives
 
-//  * enquirer
-//  * prompts
-//  * cli-table
-//  * readline-sync
+// * enquirer // * prompts // * cli-table // * readline-sync

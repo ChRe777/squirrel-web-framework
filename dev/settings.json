@@ -1,0 +1,84 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run the `zed: Open Default Settings` command
+// from the command palette
+{
+	"editor.formatOnSave": true,
+	"editor.tabSize": 4,
+	"editor.insertSpaces": true,
+	"auto_update_extensions": {
+		"deno": false
+	},
+	"preferred_line_length": 100,
+	"ui_font_size": 16,
+	"buffer_font_size": 16,
+	"tabSize": 4,
+	"theme": {
+		"mode": "system",
+		"light": "macOS Classic Light",
+		"dark": "One Light"
+	},
+	"lsp": {
+		"deno": {
+			"settings": {
+				"deno": {
+					"enable": true
+				}
+			}
+		}
+	},
+	"languages": {
+		"Markdown-Inline": {},
+		"Markdown": {
+			"soft_wrap": "preferred_line_length"
+		},
+		"Go": {
+			"preferred_line_length": 100,
+			"soft_wrap": "preferred_line_length",
+			"show_completions_on_input": true,
+			"format_on_save": "on"
+		},
+		"JSON": {
+			"tab_size": 4,
+			"formatter": "language_server",
+			"format_on_save": "on"
+		},
+		"JSONC": {
+			"tab_size": 4,
+			"formatter": "language_server",
+			"format_on_save": "on"
+		},
+		"JavaScript": {
+			"tab_size": 4,
+			"formatter": "language_server",
+			"format_on_save": "on"
+		},
+		"TypeScript": {
+			"indent_size": 4,
+			"tab_size": 4,
+			"language_servers": [
+				"deno",
+				"!typescript-language-server",
+				"!vtsls",
+				"!eslint"
+			],
+			"formatter": "language_server",
+			"format_on_save": "on"
+		},
+		"TSX": {
+			"tab_size": 4,
+			"language_servers": [
+				"deno",
+				"!typescript-language-server",
+				"!vtsls",
+				"!eslint"
+			],
+			"formatter": "language_server",
+			"format_on_save": "on"
+		}
+	}
+}
