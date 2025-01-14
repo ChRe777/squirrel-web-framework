@@ -18,9 +18,6 @@ function replaceSlot(node: Node, childrenToReplace: Node[]) {
         return;
     }
 
-    //console.log("replaceSlot - node", node)
-    //console.log("replaceSlot - childrenToReplace", childrenToReplace)
-
     // [
     //      child1
     //      slot    <-- [childA, childB, childC]

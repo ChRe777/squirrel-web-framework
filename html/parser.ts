@@ -26,6 +26,12 @@ export function parseAsJson(html: string) {
     const setCurrentBack = (): object | undefined => tagStack.pop();
 
     const onopentag = (name: string, attributes: Record<string, any>) => {
+        //
+        // <NavTree children='${JSON.stringify(nav_tree.children)}' />
+        // <NavTree :children='nav_tree.children' />
+        //
+        console.log("onopentag - attributes:", attributes);
+
         // 1. Create new node
         //
         const newNode: Node = {
@@ -127,9 +133,6 @@ export function parseAsJson(html: string) {
 
     // Init
     setNewCurrent(root);
-
-    console.log("PARSER - html", html);
-    console.log("");
 
     // PARSER - html <NavTree children=[{"name":"Getting Started","id":"getting_started","link":"/getting_started","children":[{"name":"Foo","id":"getting_stared|foo","link":"/getting_stared/foo","children":[]},{"name":"Bar","id":"getting_stared|bar","link":"/getting_stared/bar","children":[]}]},{"name":"Installation","id":"installation","link":"/installation"}] />
 
