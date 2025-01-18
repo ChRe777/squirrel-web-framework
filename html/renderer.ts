@@ -59,6 +59,14 @@ export async function renderHtml(
             return null;
         }
 
+        if (node.type == "element" && node.name.toLowerCase() == "code") {
+            console.log("node code:", node);
+            buffer.push(`<${node.name}>`);
+            buffer.push(node.content);
+            buffer.push(`</${node.name}>`);
+            return null;
+        }
+
         if (node.type == "comment") {
             buffer.push(`<!--${node.content}>`);
             return null;
@@ -76,6 +84,7 @@ export async function renderHtml(
         }
 
         // If the node has children, recursively traverse them
+        //
         if (node.children && Array.isArray(node.children)) {
             for (const child of node.children) {
                 await renderTree(child);

@@ -7,6 +7,7 @@
     "npm:chalk@*": "5.4.1",
     "npm:cli-progress@*": "3.12.0",
     "npm:figlet@*": "1.8.0",
+    "npm:htmlparser2@*": "10.0.0",
     "npm:inquirer@*": "12.3.1_@types+node@22.10.5",
     "npm:prompts@*": "2.4.2",
     "npm:shelljs@*": "0.8.5"
@@ -209,8 +210,39 @@
     "concat-map@0.0.1": {
       "integrity": "sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg=="
     },
+    "dom-serializer@2.0.0": {
+      "integrity": "sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg==",
+      "dependencies": [
+        "domelementtype",
+        "domhandler",
+        "entities@4.5.0"
+      ]
+    },
+    "domelementtype@2.3.0": {
+      "integrity": "sha512-OLETBj6w0OsagBwdXnPdN0cnMfF9opN69co+7ZrbfPGrdpPVNBUj02spi6B1N7wChLQiPn4CSH/zJvXw56gmHw=="
+    },
+    "domhandler@5.0.3": {
+      "integrity": "sha512-cgwlv/1iFQiFnU96XXgROh8xTeetsnJiDsTc7TYCLFd9+/WNkIqPTxiM/8pSd8VIrhXGTf1Ny1q1hquVqDJB5w==",
+      "dependencies": [
+        "domelementtype"
+      ]
+    },
+    "domutils@3.2.1": {
+      "integrity": "sha512-xWXmuRnN9OMP6ptPd2+H0cCbcYBULa5YDTbMm/2lvkWvNA3O4wcW+GvzooqBuNM8yy6pl3VIAeJTUUWUbfI5Fw==",
+      "dependencies": [
+        "dom-serializer",
+        "domelementtype",
+        "domhandler"
+      ]
+    },
     "emoji-regex@8.0.0": {
       "integrity": "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A=="
+    },
+    "entities@4.5.0": {
+      "integrity": "sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw=="
+    },
+    "entities@6.0.0": {
+      "integrity": "sha512-aKstq2TDOndCn4diEyp9Uq/Flu2i1GlLkc6XIDQSDMuaFE3OPW5OphLCyQ5SpSJZTb4reN+kTcYru5yIfXoRPw=="
     },
     "external-editor@3.1.0": {
       "integrity": "sha512-hMQ4CX1p1izmuLYyZqLMO/qGNw10wSv9QDCPfzXfyFrOaCSSoRfqE1Kf1s5an66J5JZC62NewG+mK49jOCtQew==",
@@ -244,6 +276,15 @@
       "integrity": "sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==",
       "dependencies": [
         "function-bind"
+      ]
+    },
+    "htmlparser2@10.0.0": {
+      "integrity": "sha512-TwAZM+zE5Tq3lrEHvOlvwgj1XLWQCtaaibSN11Q+gGBAS7Y1uZSWwXXRe4iF6OXnaq1riyQAPFOBtYc77Mxq0g==",
+      "dependencies": [
+        "domelementtype",
+        "domhandler",
+        "domutils",
+        "entities@6.0.0"
       ]
     },
     "iconv-lite@0.4.24": {
@@ -410,6 +451,7 @@
   },
   "redirects": {
     "https://arweave.net/HlI92bQkbIwE6RetwEJvazngrJwYihD5Lf23R6RMfEA/mod.js": "https://dzjd3wnuerwiybhjc6w4aqtpnm46ble4dcfbb6jn7w3upjcmpraa.arweave.net/HlI92bQkbIwE6RetwEJvazngrJwYihD5Lf23R6RMfEA/mod.js",
+    "https://deno.land/x/escape/mod.ts": "https://deno.land/x/escape@1.4.2/mod.ts",
     "https://deno.land/x/inquirer/mod.ts": "https://deno.land/x/inquirer@v0.0.4/mod.ts",
     "https://github.com/denoland/std/raw/main/fmt/colors.ts": "https://raw.githubusercontent.com/denoland/std/main/fmt/colors.ts",
     "https://x.nest.land/deno-figlet@0.0.5/mod.js": "https://arweave.net/HlI92bQkbIwE6RetwEJvazngrJwYihD5Lf23R6RMfEA/mod.js"
@@ -546,6 +588,7 @@
     "https://deno.land/x/chalk_deno@v4.1.1-deno/source/supports-color/index.js": "4d7f2d216b6ac9013d9ec7e004de21f5a7d00bf2be4075bab2d82638d0d41a86",
     "https://deno.land/x/chalk_deno@v4.1.1-deno/source/templates.js": "f2e12be18cb84710e341e5499528280278052909fa74a12cefc9e2cc26a597ac",
     "https://deno.land/x/chalk_deno@v4.1.1-deno/source/util.js": "cd08297ec411dcee91826ad01a00d3427235d4548ba605a59e64f0da83af8306",
+    "https://deno.land/x/escape@1.4.2/mod.ts": "6a30f506583e5d3bcc5f3cd2d42fba43af618833dc0f7754b374b6f7b21aaf68",
     "https://deno.land/x/inquirer@v0.0.4/deps.ts": "32cf3986c91fca6b82712e516661fc6b151e380161a3b7a2cea4ddb3ec3624ad",
     "https://deno.land/x/inquirer@v0.0.4/lib/confirm.ts": "c10e989e29b0af3e840b6b6361310a6db78fe8f200a8ed54fa01e815b2419fe2",
     "https://deno.land/x/inquirer@v0.0.4/lib/input.ts": "a4d8967e99867cfb8ee6582b95a073a29b0691340f8725d29f2f4ed05687cf24",

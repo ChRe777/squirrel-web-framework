@@ -1,18 +1,9 @@
-import { parseAsJson } from './html_parser.ts';
+import { parseAsJson } from "./parser.ts";
+import { renderHtml } from "./renderer.ts";
+const html2 = `<code>test
+test
+<h1></h1></code><foo>bar</foo>`;
+const [tree2, error2] = parseAsJson(html2);
 
-const html = `<html>
-    <head>
-        <link
-                rel="stylesheet"
-                href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.4.5/spectre.min.css"
-        />
-    </head>
-    <body>
-        <h3>Users:</h3>
-        <ul>
-            UserList
-        </ul>
-    </body>
-</html> `;
-const [tree, error] = parseAsJson(html);
-console.log(tree);
+console.log(tree2);
+console.log(await renderHtml(tree2, {}, null, {}));

@@ -126,10 +126,14 @@ export async function onMapTag(
         return [tree, null];
     }
 
+    console.log("Mapper - filePath:", filePath);
+
     //
     // .uhtml --> html
     //
-    if (filePath.endsWith(".uhtml")) {
+    if (filePath.endsWith(".uhtml") || filePath.endsWith(".vue")) {
+        console.log("Mapper - uhtml or vue");
+
         const [html, error1] = await tryReadTextFile(filePath);
         if (error1 != null) {
             return [{}, error1];

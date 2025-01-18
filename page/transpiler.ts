@@ -56,6 +56,9 @@ async function evalBody(
 ): Promise<[string, any]> {
     try {
         const dynamicCode = makeDynamicCode(data, context);
+
+        console.log("evalBody - dynamicCode:", dynamicCode);
+
         const [result, error] = await evaluateAndReturn(dynamicCode);
         return [result.trim(), error];
     } catch (error) {
@@ -79,7 +82,9 @@ async function evalBody(
 * @returns transpile code
 */
 export function transpileImports(code: string): string {
-    const regex = /import\s+{([^}]+)}\s+from\s+["']([^"']+)(.squirrel|.uhtml)["']\s*[;]*/g;
+    // TODO: FileEndings Registry
+    //
+    const regex = /import\s+{([^}]+)}\s+from\s+["']([^"']+)(.squirrel|.uhtml|.vue)["']\s*[;]*/g;
 
     const result = code.replace(regex, (_, moduleNames, path, ending) => {
         // Split the module names in case there are multiple (e.g., { Foo, Bar })

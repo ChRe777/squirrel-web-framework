@@ -4,9 +4,27 @@
 //
 // @ts-ignore:
 import { Error, Parser } from "npm:htmlparser2";
+import { Attributes } from "../types/mod.ts";
+import { escapeHtml } from "../deps.ts";
 
 // Type
 import type { Node } from "../types/mod.ts";
+
+function isEmpty(obj: object): boolean {
+    return Object.keys(obj).length === 0;
+}
+
+function renderAttributes(attributes: Attributes): string {
+    if (attributes == null || attributes == undefined || isEmpty(attributes)) {
+        return "";
+    }
+
+    const str = Object.entries(attributes)
+        .map(([key, value]) => `${key}="${value}"`)
+        .join(" ");
+
+    return " " + str;
+}
 
 // Exports
 //
@@ -21,16 +39,25 @@ export function parseAsJson(html: string) {
         content: "",
     };
 
+    const codeBuffer: string[] = [];
+
     const getCurrent = (): Node => tagStack[tagStack.length - 1];
     const setNewCurrent = (node: Node): number => tagStack.push(node);
     const setCurrentBack = (): object | undefined => tagStack.pop();
+    let insideCodeTag = false;
 
     const onopentag = (name: string, attributes: Record<string, any>) => {
         //
         // <NavTree children='${JSON.stringify(nav_tree.children)}' />
         // <NavTree :children='nav_tree.children' />
         //
-        console.log("onopentag - attributes:", attributes);
+        //console.log("onopentag - attributes:", attributes);
+
+        if (insideCodeTag) {
+            const attr = renderAttributes(attributes);
+            codeBuffer.push(`<${name}${attr}>`);
+            return;
+        }
 
         // 1. Create new node
         //
@@ -50,9 +77,18 @@ export function parseAsJson(html: string) {
         // 3. Set new current
         //
         setNewCurrent(newNode);
+
+        if (name.toLowerCase() == "code") {
+            insideCodeTag = true;
+        }
     };
 
     const ontext = (text: string) => {
+        if (insideCodeTag) {
+            codeBuffer.push(text);
+            return;
+        }
+
         // 1. Create text node
         //
         const newTextNode = {
@@ -70,6 +106,17 @@ export function parseAsJson(html: string) {
     };
 
     const onclosetag = (_name: string) => {
+        if (insideCodeTag && _name.toLowerCase() != "code") {
+            codeBuffer.push(`</${_name}>`);
+            return;
+        }
+
+        if (insideCodeTag && _name.toLowerCase() == "code") {
+            insideCodeTag = false;
+            const node = getCurrent();
+            node.content = escapeHtml(codeBuffer.join(""));
+            codeBuffer.length = 0;
+        }
         // 1. Set current node back to last parent
         //
         setCurrentBack();
