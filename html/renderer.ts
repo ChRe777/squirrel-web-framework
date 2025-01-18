@@ -36,7 +36,7 @@ export async function renderHtml(
             //
             // <div>
             //     <h1>title</h1>
-            //     <slot/>             <<--- SLOT
+            //     <hole/>             <<--- HOLE
             // </div>
             //
 

@@ -14,7 +14,7 @@ export async function makePage(
     path: string,
     context: Record<string, any>,
 ): Promise<[string, any]> {
-    const filepath = join("./src/", Constants.PAGES_DIR, path);
+    const filepath = join(Constants.SERVER_DIR, Constants.PAGES_DIR, path);
     // @ts-ignore:
     const content = await Deno.readTextFile(filepath);
 

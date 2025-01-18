@@ -7,6 +7,8 @@ import { transpile } from "./mod.ts";
 import { parseAsJson, renderHtml } from "../html/mod.ts";
 import { copyDeep, join, tryReadTextFile } from "../utils/mod.ts";
 import { logger } from "../logging/mod.ts";
+// Constants
+import * as Constants from "../constants/mod.ts";
 
 // Types
 import type { Attributes, Context, Node } from "../types/mod.ts";
@@ -30,8 +32,8 @@ function replaceSlot(node: Node, childrenToReplace: Node[]) {
     let index = 0;
 
     for (const child of node.children) {
-        // <slot />
-        if (child.name == "slot") {
+        // <hole />
+        if (child.name == "hole") {
             indexToReplace = index;
         }
         index++;
@@ -42,7 +44,7 @@ function replaceSlot(node: Node, childrenToReplace: Node[]) {
         node.children.splice(indexToReplace, 1, ...childrenToReplace);
     }
 
-    // Try to find <slot/> it in tree
+    // Try to find <hole/> it in tree
     if (indexToReplace == -1) {
         // Recursive
         for (const child of node.children) {
@@ -91,11 +93,11 @@ export async function onMapTag(
     //
 
     if (filePath.startsWith("/components/")) {
-        filePath = join("./src", filePath);
+        filePath = join(Constants.SERVER_DIR, filePath);
     }
 
     if (filePath.startsWith("/layouts/")) {
-        filePath = join("./src", filePath);
+        filePath = join(Constants.SERVER_DIR, filePath);
     }
 
     //

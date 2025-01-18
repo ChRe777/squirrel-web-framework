@@ -1,4 +1,4 @@
 ---
 const { id } = Squirrel.props;
 ---
-<div id="${id}"><slot /></div>
+<div id="${id}"><hole/></div>

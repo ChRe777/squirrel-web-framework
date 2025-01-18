@@ -9,7 +9,7 @@ import { Navbar } from "/components/navbar.squirrel";
     <div class="columns">
         <div class="column col-3"/>
         <div class="column col-6">
-            <slot/>
+            <hole/>
         </div>
         <div class="column col-3"/>
     </div>
