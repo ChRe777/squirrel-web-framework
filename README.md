@@ -2,7 +2,7 @@
 
 A fast, simple and modern 7th generation framework.
 
-(Squirrel)[squirrelA.png]
+[Squirrel](squirrelA.png)
 
 ## Why fast?
 
@@ -16,6 +16,6 @@ It is simple made.
 
 It is modern, because it uses state of the art ideas.
 
-(Squirrel)[squirrelB.png]
-(Squirrel)[squirrelC.png]
-(Squirrel)[squirrelD.png]
+[Squirrel](squirrelB.png)
+[Squirrel](squirrelC.png)
+[Squirrel](squirrelD.png)
