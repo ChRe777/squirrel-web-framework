@@ -16,6 +16,13 @@ It is simple made.
 
 It is modern, because it uses state of the art ideas.
 
+# Installer
 [Squirrel](squirrelB.png)
+
+# Demo
+
 [Squirrel](squirrelC.png)
+
+# Documentation
+
 [Squirrel](squirrelD.png)
