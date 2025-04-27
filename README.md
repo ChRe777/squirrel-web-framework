@@ -2,7 +2,7 @@
 
 A fast, simple and modern 7th generation framework.
 
-[Squirrel](squirrelA.png)
+![Squirrel](squirrelA.png)
 
 ## Why fast?
 
@@ -17,12 +17,12 @@ It is simple made.
 It is modern, because it uses state of the art ideas.
 
 # Installer
-[Squirrel](squirrelB.png)
-
-# Demo
-
-[Squirrel](squirrelC.png)
+![Squirrel](squirrelB.png)
 
 # Documentation
 
-[Squirrel](squirrelD.png)
+![Squirrel](squirrelC.png)
+
+# Demo Homepage
+
+![Squirrel](squirrelD.png)
