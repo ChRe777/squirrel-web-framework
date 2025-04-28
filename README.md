@@ -26,3 +26,5 @@ It is modern, because it uses state of the art ideas.
 # Demo Homepage
 
 ![Squirrel](squirrelD.png)
+
+![Squirrel](squirrelE.png)
