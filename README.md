@@ -1,6 +1,6 @@
 # SQUIRREL
 
-A fast, simple and modern 7th generation framework.
+A fast, simple and modern 7th generation framework similar to [Astro] (https://astro.build) but less complicated.
 
 ![Squirrel](squirrelA.png)
 
