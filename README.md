@@ -6,7 +6,7 @@ A fast, simple and modern 7th generation framework similar to [Astro](https://as
 
 ## Why fast?
 
-It is fast because it is build with Deno and uHtml.
+It is fast because it is build with [Deno](https://deno.com) and [uhtml](https://webreflection.github.io/uhtml/).
 
 ## Why simple?
 
