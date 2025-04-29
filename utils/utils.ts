@@ -125,14 +125,3 @@ export function makeContext(request: Request): Record<string, any> {
     return context;
 }
 
-/*
-hash: "";
-host: "chatgpt.com";
-hostname: "chatgpt.com";
-href: "https://chatgpt.com/foo";
-origin: "https://chatgpt.com";
-password: "";
-pathname: "/foo";
-port: "";
-protocol: "https:";
-*/
